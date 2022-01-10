@@ -20,7 +20,7 @@ func main() {
 	}
 
 	log.Println("Connecting to Temporal...")
-	temporalClient = internal.StartTemporal()
+	temporalClient := internal.StartTemporal()
 	defer temporalClient.Close()
 
 	log.Println("Trying to start worker for workflow: ", *workflow)
