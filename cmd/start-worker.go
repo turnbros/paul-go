@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"go.temporal.io/sdk/client"
 	"log"
 	"os"
+	"paul/internal"
 	resourceCount "paul/internal/workflows/resource-count"
 	resourceInfo "paul/internal/workflows/resource-info"
 	resourceStatus "paul/internal/workflows/resource-status"
@@ -20,18 +20,8 @@ func main() {
 	}
 
 	log.Println("Connecting to Temporal...")
-	clientOptions := client.Options{
-		HostPort:  "127.0.0.1:7233",
-		Namespace: "default",
-	}
-	temporalClient, err := client.NewClient(clientOptions)
-	if err != nil {
-		log.Fatalln("unable to create Temporal client", err)
-		os.Exit(4)
-	} else {
-		defer temporalClient.Close()
-		log.Println("Connected!")
-	}
+	temporalClient = internal.StartTemporal()
+	defer temporalClient.Close()
 
 	log.Println("Trying to start worker for workflow: ", *workflow)
 	switch *workflow {
