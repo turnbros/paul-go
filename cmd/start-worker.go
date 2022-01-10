@@ -5,9 +5,9 @@ import (
 	"go.temporal.io/sdk/client"
 	"log"
 	"os"
+	resourceCount "paul/internal/workflows/resource-count"
 	resourceInfo "paul/internal/workflows/resource-info"
-	resourceCount "paul/internal/workflows/resources-count"
-	resourceStatus "paul/internal/workflows/resources-status"
+	resourceStatus "paul/internal/workflows/resource-status"
 )
 
 func main() {

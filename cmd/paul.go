@@ -1,49 +1,65 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"github.com/google/uuid"
-	"log"
-	"paul/internal"
-	resources_count "paul/internal/workflows/resources-count"
-
+	"github.com/bwmarrin/discordgo"
 	"go.temporal.io/sdk/client"
+	"log"
+	"os"
+	"os/signal"
+	"paul/internal"
+	"strings"
+	"syscall"
 )
+
+var discordClient *discordgo.Session
+var temporalClient client.Client
 
 const dialogflowProjectId = "paul-fmma"
 const dialogflowLanguageCode = "en"
 
 func main() {
-	// The client is a heavyweight object that should be created once per process.
-	temporalClient, err := client.NewClient(client.Options{
-		HostPort: client.DefaultHostPort,
-	})
-	if err != nil {
-		log.Fatalln("Unable to create client", err)
-	}
+
+	temporalClient = internal.StartTemporal()
 	defer temporalClient.Close()
 
-	userRequest := "How many services are there"
+	discordClient = internal.StartDiscord()
+	defer discordClient.Close()
 
-	detectedIntent, err := internal.DetectIntentText(dialogflowProjectId, uuid.New().String(), userRequest, dialogflowLanguageCode)
+	discordClient.AddHandler(HandleMessage)
+	discordClient.Identify.Intents = discordgo.IntentsGuildMessages
+
+	// Open a websocket connection to Discord and begin listening.
+	err := discordClient.Open()
 	if err != nil {
-		log.Fatalln("Unable to create client", err)
+		log.Fatalln("error opening Discord client connection,", err)
+		panic(5)
 	}
 
-	intentAction := detectedIntent.GetAction()
-	log.Println("Intent Action: ", intentAction)
-	intentParameters, _ := json.Marshal(detectedIntent.GetParameters().AsMap())
-	log.Println("Intent Parameters: ", string(intentParameters))
+	// Wait here until CTRL-C or other term signal is received.
+	log.Println("Bot is now running.  Press CTRL-C to exit.")
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-sc
+}
 
-	workExec := resources_count.ExecuteWorkflow(temporalClient, string(intentParameters))
-	log.Println("Started workflow", "WorkflowID", workExec.GetID(), "RunID", workExec.GetRunID())
-
-	var executionResponse string
-	err = workExec.Get(context.Background(), &executionResponse)
-	if err != nil {
-		log.Fatalln("Unable get workflow response", err)
+func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == s.State.User.ID {
+		return
 	}
 
-	log.Println("Workflow Response:", executionResponse)
+	log.Println(m.Content)
+
+	botAuthorId := "<@!" + s.State.User.ID + ">"
+	log.Println(botAuthorId)
+	message := strings.ToLower(m.Content)
+	if strings.HasPrefix(message, botAuthorId) {
+		log.Println("get response")
+		requestMessage := strings.Replace(message, botAuthorId, "", 1)
+
+		intentAction, intentParameters := internal.ParseRequest(dialogflowProjectId, requestMessage, dialogflowLanguageCode)
+
+		paulResponse := internal.ExecuteWorkflow(temporalClient, intentAction, intentParameters)
+
+		s.ChannelMessageSend(m.ChannelID, paulResponse)
+	}
 }

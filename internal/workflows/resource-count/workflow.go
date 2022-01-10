@@ -1,4 +1,4 @@
-package resources_count
+package resource_count
 
 import (
 	"context"
@@ -19,7 +19,7 @@ func StartWorker(client client.Client) {
 	workerOptions := worker.Options{}
 	workerBee := worker.New(client, TaskQueue, workerOptions)
 
-	workerBee.RegisterWorkflow(CountResources)
+	workerBee.RegisterWorkflow(GetResourceCount)
 	workerBee.RegisterActivity(CountAll)
 	// workerBee.RegisterActivity(CountPods)
 	// workerBee.RegisterActivity(CountServices)
@@ -49,7 +49,7 @@ func ExecuteWorkflow(clientSession client.Client, requestParameters string) clie
 	}
 
 	// kick off the workflow and
-	workExec, err := clientSession.ExecuteWorkflow(context.Background(), workflowOptions, CountResources, countRequest)
+	workExec, err := clientSession.ExecuteWorkflow(context.Background(), workflowOptions, GetResourceCount, countRequest)
 	if err != nil {
 		log.Fatalln("Failed to execute workflow: ", err)
 		panic(err)
@@ -57,7 +57,7 @@ func ExecuteWorkflow(clientSession client.Client, requestParameters string) clie
 	return workExec
 }
 
-func CountResources(ctx workflow.Context, countRequest CountRequest) (*string, error) {
+func GetResourceCount(ctx workflow.Context, countRequest CountRequest) (*string, error) {
 	retryPolicy := &temporal.RetryPolicy{
 		InitialInterval:    time.Second,
 		BackoffCoefficient: 2.0,

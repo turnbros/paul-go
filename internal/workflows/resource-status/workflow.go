@@ -1,4 +1,4 @@
-package resource_info
+package resource_status
 
 import (
 	"context"
@@ -10,12 +10,12 @@ import (
 	"log"
 )
 
-const TaskQueue = "ResourceInfo"
+const TaskQueue = "ResourceStatus"
 
 func StartWorker(client client.Client) {
 	workerOptions := worker.Options{}
 	workerBee := worker.New(client, TaskQueue, workerOptions)
-	workerBee.RegisterWorkflow(GetResourceInfo)
+	workerBee.RegisterWorkflow(GetResourceStatus)
 	//workerBee.RegisterActivity(CountAll)
 
 	err := workerBee.Run(worker.InterruptCh())
@@ -24,7 +24,7 @@ func StartWorker(client client.Client) {
 	}
 }
 
-func GetResourceInfo(ctx workflow.Context) (*int, error) {
+func GetResourceStatus(ctx workflow.Context) (*int, error) {
 	return nil, nil
 }
 
@@ -38,7 +38,7 @@ func ExecuteWorkflow(clientSession client.Client, requestParameters string) clie
 	}
 
 	// Unmarshall the dialogflow queryResult parameters into a CountRequest object
-	countRequest := InfoRequest{} //make(map[string]CountRequest)
+	countRequest := StatusRequest{} //make(map[string]CountRequest)
 	err := json.Unmarshal([]byte(requestParameters), &countRequest)
 	if err != nil {
 		log.Fatalln("Failed to marshall the request parameters")
@@ -46,7 +46,7 @@ func ExecuteWorkflow(clientSession client.Client, requestParameters string) clie
 	}
 
 	// kick off the workflow and
-	workExec, err := clientSession.ExecuteWorkflow(context.Background(), workflowOptions, GetResourceInfo, countRequest)
+	workExec, err := clientSession.ExecuteWorkflow(context.Background(), workflowOptions, GetResourceStatus, countRequest)
 	if err != nil {
 		log.Fatalln("Failed to execute workflow: ", err)
 		panic(err)

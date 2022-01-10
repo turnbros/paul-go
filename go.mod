@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	cloud.google.com/go/dialogflow v1.3.0
+	github.com/bwmarrin/discordgo v0.23.2
 	github.com/google/uuid v1.3.0
 	go.temporal.io/sdk v1.12.0
 	google.golang.org/genproto v0.0.0-20211223182754-3ac035c7e7cb
@@ -33,6 +34,7 @@ require (
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
 	github.com/googleapis/gnostic v0.4.1 // indirect
+	github.com/gorilla/websocket v1.4.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
 	github.com/imdario/mergo v0.3.5 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect

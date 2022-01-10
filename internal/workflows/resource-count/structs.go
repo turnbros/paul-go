@@ -1,6 +1,6 @@
-package resource_info
+package resource_count
 
-type InfoRequest struct {
+type CountRequest struct {
 	// TODO: Look into way to add a scope to this
 	// ResourceScope string `json:"resource_scope"`
 	ResourceType string `json:"resource_type"`

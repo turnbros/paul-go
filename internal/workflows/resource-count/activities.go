@@ -1,4 +1,4 @@
-package resources_count
+package resource_count
 
 import (
 	"context"

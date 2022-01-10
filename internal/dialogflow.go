@@ -3,12 +3,28 @@ package internal
 import (
 	dialogflow "cloud.google.com/go/dialogflow/apiv2"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	dialogflowpb "google.golang.org/genproto/googleapis/cloud/dialogflow/v2"
+	"log"
 )
 
-func DetectIntentText(projectID, sessionID, text, languageCode string) (*dialogflowpb.QueryResult, error) {
+func ParseRequest(projectID, userRequest, languageCode string) (string, string) {
+	detectedIntent, err := detectIntentText(projectID, uuid.New().String(), userRequest, languageCode)
+	if err != nil {
+		log.Fatalln("Unable to create client", err)
+	}
+	intentAction := detectedIntent.GetAction()
+	log.Println("Intent Action: ", intentAction)
+	intentParameters, _ := json.Marshal(detectedIntent.GetParameters().AsMap())
+	log.Println("Intent Parameters: ", string(intentParameters))
+
+	return intentAction, string(intentParameters)
+}
+
+func detectIntentText(projectID, sessionID, text, languageCode string) (*dialogflowpb.QueryResult, error) {
 	ctx := context.Background()
 
 	sessionClient, err := dialogflow.NewSessionsClient(ctx)
