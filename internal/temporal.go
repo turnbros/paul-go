@@ -16,7 +16,7 @@ func StartTemporal() client.Client {
 	log.Println(fmt.Sprintf("%v:%v", temporalConfig["host"], temporalConfig["port"]))
 	temporalClient, err := client.NewClient(client.Options{
 		HostPort:  fmt.Sprintf("%v:%v", temporalConfig["host"], temporalConfig["port"]),
-		Namespace: fmt.Sprintf("%v", temporalConfig["default"]),
+		Namespace: fmt.Sprintf("%v", temporalConfig["namespace"]),
 	})
 	if err != nil {
 		panic(err)
