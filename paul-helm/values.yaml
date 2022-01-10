@@ -32,7 +32,7 @@ resources:
 image:
   tag: latest
   pullPolicy: Always
-  repository: ghcr.io/turnbros/paul/paul
+  repository: ghcr.io/turnbros/paul-go/paul-go
 
 nameOverride: ""
 fullnameOverride: ""
