@@ -2,16 +2,19 @@ package internal
 
 import (
 	"context"
+	"fmt"
 	"go.temporal.io/sdk/client"
 	"log"
+	"paul/internal/util"
 	resource_count "paul/internal/workflows/resource-count"
 	resource_info "paul/internal/workflows/resource-info"
 	resource_status "paul/internal/workflows/resource-status"
 )
 
 func StartTemporal() client.Client {
+	temporalConfig := util.GetTemporalConfig()
 	temporalClient, err := client.NewClient(client.Options{
-		HostPort: client.DefaultHostPort,
+		HostPort: fmt.Sprintf("%v:%v", temporalConfig["host"], temporalConfig["port"]),
 	})
 	if err != nil {
 		panic(err)
