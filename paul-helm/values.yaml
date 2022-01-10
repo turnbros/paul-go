@@ -1,14 +1,8 @@
 
 workflows:
-- name: server_count
+- name: resource-count
   replicas: 1
   task_queue: ServerCount
-- name: server_update
-  replicas: 1
-  task_queue: ServerUpdate
-- name: server_test
-  replicas: 1
-  task_queue: ServerWorkflowTest
 
 temporal:
   host: temporal-frontend.temporal.svc.cluster.local
