@@ -10,7 +10,6 @@ RUN go mod download
 # Copy in the code and build scripts
 COPY cmd cmd
 COPY internal internal
-COPY pkg pkg
 COPY scripts scripts
 RUN ./scripts/build.sh
 
