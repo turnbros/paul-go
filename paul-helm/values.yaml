@@ -1,0 +1,59 @@
+
+workflows:
+- name: server_count
+  replicas: 1
+  task_queue: ServerCount
+- name: server_update
+  replicas: 1
+  task_queue: ServerUpdate
+- name: server_test
+  replicas: 1
+  task_queue: ServerWorkflowTest
+
+temporal:
+  host: temporal-frontend.temporal.svc.cluster.local
+  port: 7233
+  namespace: default
+
+dialogflow:
+  project_id: paul-fmma
+  language_code: en
+
+discord: {}
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 128Mi
+  limits:
+    cpu: 400m
+    memory: 256Mi
+
+image:
+  tag: latest
+  pullPolicy: Always
+  repository: ghcr.io/turnbros/paul/paul
+
+nameOverride: ""
+fullnameOverride: ""
+imagePullSecrets: []
+
+serviceAccount:
+  name: paul
+  create: true
+  annotations: {}
+
+podSecurityContext:
+  fsGroup: 3240
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 3240
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
