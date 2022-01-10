@@ -71,9 +71,20 @@ func GetResourceCount(ctx workflow.Context, countRequest CountRequest) (*string,
 	ctx = workflow.WithActivityOptions(ctx, activityOptions)
 
 	var response string
-	err := workflow.ExecuteActivity(ctx, CountAll, countRequest).Get(ctx, &response)
-	if err != nil {
-		return nil, err
+
+	if countRequest.ResourceType == "" {
+		err := workflow.ExecuteActivity(ctx, CountAll, countRequest).Get(ctx, &response)
+		if err != nil {
+			return nil, err
+		}
 	}
+
+	if countRequest.ResourceType == "pod" {
+		err := workflow.ExecuteActivity(ctx, CountPods, countRequest).Get(ctx, &response)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &response, nil
 }
