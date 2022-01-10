@@ -33,7 +33,7 @@ spec:
           image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command: ["start-worker"]
-          args: ["-workflow {{ $workflow.name }}"]
+          args: ["-workflow", "{{ $workflow.name }}"]
           envFrom:
             - secretRef:
                 name: {{ include "paul.fullname" $ }}-discord-token
