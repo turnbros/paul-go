@@ -11,8 +11,9 @@ import (
 	"log"
 )
 
-func ParseRequest(projectID, userRequest, languageCode string) (string, string) {
+func ParseRequest(projectID, userRequest, languageCode string) (string, string, string) {
 	detectedIntent, err := detectIntentText(projectID, uuid.New().String(), userRequest, languageCode)
+
 	if err != nil {
 		log.Fatalln("Unable to create client", err)
 	}
@@ -21,7 +22,7 @@ func ParseRequest(projectID, userRequest, languageCode string) (string, string) 
 	intentParameters, _ := json.Marshal(detectedIntent.GetParameters().AsMap())
 	log.Println("Intent Parameters: ", string(intentParameters))
 
-	return intentAction, string(intentParameters)
+	return intentAction, string(intentParameters), detectedIntent.FulfillmentText
 }
 
 func detectIntentText(projectID, sessionID, text, languageCode string) (*dialogflowpb.QueryResult, error) {

@@ -6,13 +6,20 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"paul/internal/util"
-	"strconv"
 )
 
-func CountAll(ctx context.Context) (string, error) {
+func CountAll(ctx context.Context, countRequest CountRequest) (string, error) {
 
 	podList := util.ListKubePods("", metav1.ListOptions{})
 	count := len(podList.Items)
 	fmt.Println("Pod Count is: ", len(podList.Items))
-	return strconv.Itoa(count), nil
+	return fmt.Sprintf("The answer is %v", count), nil
+}
+
+func CountPods(ctx context.Context) (string, error) {
+
+	podList := util.ListKubePods("", metav1.ListOptions{})
+	count := len(podList.Items)
+	fmt.Println("Pod Count is: ", len(podList.Items))
+	return fmt.Sprintf("The answer is %v", count), nil
 }

@@ -3,7 +3,6 @@ package resource_count
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/temporal"
@@ -68,14 +67,13 @@ func GetResourceCount(ctx workflow.Context, countRequest CountRequest) (*string,
 		RetryPolicy:         retryPolicy,
 		StartToCloseTimeout: 2 * time.Minute,
 	}
+
 	ctx = workflow.WithActivityOptions(ctx, activityOptions)
-	var asdf string
-	err := workflow.ExecuteActivity(ctx, CountAll).Get(ctx, &asdf)
+
+	var response string
+	err := workflow.ExecuteActivity(ctx, CountAll, countRequest).Get(ctx, &response)
 	if err != nil {
-		return &asdf, err
+		return nil, err
 	}
-
-	fmt.Println("the result was ", asdf)
-
-	return &asdf, nil
+	return &response, nil
 }

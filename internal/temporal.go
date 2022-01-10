@@ -30,11 +30,11 @@ func ExecuteWorkflow(temporalClient client.Client, intentAction string, intentPa
 	var executionResponse string
 
 	switch intentAction {
-	case "resource_info":
+	case "workflow.resource_info":
 		workExec = resource_info.ExecuteWorkflow(temporalClient, intentParameters)
-	case "resource_count":
+	case "workflow.resource_count":
 		workExec = resource_count.ExecuteWorkflow(temporalClient, intentParameters)
-	case "resource_status":
+	case "workflow.resource_status":
 		workExec = resource_status.ExecuteWorkflow(temporalClient, intentParameters)
 	default:
 		panic("can't find workflow: " + intentAction)

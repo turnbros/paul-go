@@ -55,10 +55,11 @@ func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if strings.HasPrefix(message, botAuthorId) {
 		log.Println("get response")
 		requestMessage := strings.Replace(message, botAuthorId, "", 1)
+		intentAction, intentParameters, paulResponse := internal.ParseRequest(dialogflowProjectId, requestMessage, dialogflowLanguageCode)
 
-		intentAction, intentParameters := internal.ParseRequest(dialogflowProjectId, requestMessage, dialogflowLanguageCode)
-
-		paulResponse := internal.ExecuteWorkflow(temporalClient, intentAction, intentParameters)
+		if strings.HasPrefix(message, "workflow") {
+			paulResponse = internal.ExecuteWorkflow(temporalClient, intentAction, intentParameters)
+		}
 
 		s.ChannelMessageSend(m.ChannelID, paulResponse)
 	}
