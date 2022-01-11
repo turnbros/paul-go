@@ -50,6 +50,15 @@ func GetKubeClient() *kubernetes.Clientset {
 	return clientset
 }
 
+func ListKubeNamespaces(options metav1.ListOptions) *v1.NamespaceList {
+	kubeClient := GetKubeClient()
+	namespaceList, err := kubeClient.CoreV1().Namespaces().List(context.TODO(), options)
+	if err != nil {
+		panic(err.Error())
+	}
+	return namespaceList
+}
+
 func ListKubePods(namespace string, options metav1.ListOptions) *v1.PodList {
 	kubeClient := GetKubeClient()
 	podList, err := kubeClient.CoreV1().Pods(namespace).List(context.TODO(), options)

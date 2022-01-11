@@ -73,6 +73,11 @@ func GetResourceCount(ctx workflow.Context, countRequest CountRequest) (*string,
 	var response string
 
 	switch countRequest.ResourceType {
+	case "namespace":
+		err := workflow.ExecuteActivity(ctx, CountNamespaces, countRequest).Get(ctx, &response)
+		if err != nil {
+			return nil, err
+		}
 	case "pod":
 		err := workflow.ExecuteActivity(ctx, CountPods, countRequest).Get(ctx, &response)
 		if err != nil {

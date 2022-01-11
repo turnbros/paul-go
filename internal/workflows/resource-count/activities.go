@@ -16,6 +16,16 @@ func CountAll(ctx context.Context, countRequest CountRequest) (string, error) {
 	return fmt.Sprintf("The answer is %v", count), nil
 }
 
+func CountNamespaces(ctx context.Context, countRequest CountRequest) (string, error) {
+	namespaceList := util.ListKubeNamespaces(metav1.ListOptions{})
+	count := len(namespaceList.Items)
+
+	if countRequest.ResourceScope != "" {
+		return fmt.Sprintf("The answer is %v namespaces in %v", count, countRequest.ResourceScope), nil
+	}
+	return fmt.Sprintf("The answer is %v namespaces total", count), nil
+}
+
 func CountPods(ctx context.Context, countRequest CountRequest) (string, error) {
 	podList := util.ListKubePods(countRequest.ResourceScope, metav1.ListOptions{})
 	count := len(podList.Items)
@@ -23,7 +33,7 @@ func CountPods(ctx context.Context, countRequest CountRequest) (string, error) {
 	if countRequest.ResourceScope != "" {
 		return fmt.Sprintf("The answer is %v pods in %v", count, countRequest.ResourceScope), nil
 	}
-	return fmt.Sprintf("The answer is %v pods in total", count), nil
+	return fmt.Sprintf("The answer is %v pods total", count), nil
 }
 
 func CountServices(ctx context.Context, countRequest CountRequest) (string, error) {
@@ -31,7 +41,7 @@ func CountServices(ctx context.Context, countRequest CountRequest) (string, erro
 	count := len(serviceList.Items)
 
 	if countRequest.ResourceScope != "" {
-		return fmt.Sprintf("The answer is %v pods in %v", count, countRequest.ResourceScope), nil
+		return fmt.Sprintf("The answer is %v services in %v", count, countRequest.ResourceScope), nil
 	}
-	return fmt.Sprintf("The answer is %v pods in total", count), nil
+	return fmt.Sprintf("The answer is %v services total", count), nil
 }
