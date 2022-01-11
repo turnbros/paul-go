@@ -43,16 +43,37 @@ func main() {
 	<-sc
 }
 
+type MessageLogEntry struct {
+	Timestamp      string `json:"timestamp"`
+	MsgID          string `json:"msg_id"`
+	MsgChannelID   string `json:"msg_channel_id"`
+	MsgGuildID     string `json:"msg_guild_id"`
+	MsgContent     string `json:"msg_content"`
+	AuthorID       string `json:"author_id"`
+	AuthorBot      bool   `json:"author_bot"`
+	AuthorEmail    string `json:"author_email"`
+	AuthorUsername string `json:"author_username"`
+}
+
 func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
-	messageJSON, err := json.Marshal(m)
-	if err != nil {
-		log.Fatalln("Failed to marshall message struct: ", err)
+	// Create a message log entry
+	messageLogEntry := MessageLogEntry{
+		Timestamp:      string(m.Timestamp),
+		MsgID:          m.ID,
+		MsgChannelID:   m.ChannelID,
+		MsgGuildID:     m.GuildID,
+		MsgContent:     m.Content,
+		AuthorID:       m.Author.ID,
+		AuthorBot:      m.Author.Bot,
+		AuthorEmail:    m.Author.Email,
+		AuthorUsername: m.Author.Username,
 	}
-	log.Println(messageJSON)
+
+	log.Println(json.Marshal(messageLogEntry))
 
 	botAuthorId := "<@!" + s.State.User.ID + ">"
 	message := strings.ToLower(m.Content)
