@@ -25,3 +25,13 @@ func CountPods(ctx context.Context, countRequest CountRequest) (string, error) {
 	}
 	return fmt.Sprintf("The answer is %v pods in total", count), nil
 }
+
+func CountServices(ctx context.Context, countRequest CountRequest) (string, error) {
+	serviceList := util.ListKubeServices(countRequest.ResourceScope, metav1.ListOptions{})
+	count := len(serviceList.Items)
+
+	if countRequest.ResourceScope != "" {
+		return fmt.Sprintf("The answer is %v pods in %v", count, countRequest.ResourceScope), nil
+	}
+	return fmt.Sprintf("The answer is %v pods in total", count), nil
+}

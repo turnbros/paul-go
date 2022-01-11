@@ -72,15 +72,19 @@ func GetResourceCount(ctx workflow.Context, countRequest CountRequest) (*string,
 
 	var response string
 
-	if countRequest.ResourceType == "" {
-		err := workflow.ExecuteActivity(ctx, CountAll, countRequest).Get(ctx, &response)
+	switch countRequest.ResourceType {
+	case "pod":
+		err := workflow.ExecuteActivity(ctx, CountPods, countRequest).Get(ctx, &response)
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	if countRequest.ResourceType == "pod" {
-		err := workflow.ExecuteActivity(ctx, CountPods, countRequest).Get(ctx, &response)
+	case "service":
+		err := workflow.ExecuteActivity(ctx, CountServices, countRequest).Get(ctx, &response)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		err := workflow.ExecuteActivity(ctx, CountAll, countRequest).Get(ctx, &response)
 		if err != nil {
 			return nil, err
 		}

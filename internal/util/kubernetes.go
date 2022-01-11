@@ -52,11 +52,20 @@ func GetKubeClient() *kubernetes.Clientset {
 
 func ListKubePods(namespace string, options metav1.ListOptions) *v1.PodList {
 	kubeClient := GetKubeClient()
-	podList, err := kubeClient.CoreV1().Pods("").List(context.TODO(), options)
+	podList, err := kubeClient.CoreV1().Pods(namespace).List(context.TODO(), options)
 	if err != nil {
 		panic(err.Error())
 	}
 	return podList
+}
+
+func ListKubeServices(namespace string, options metav1.ListOptions) *v1.ServiceList {
+	kubeClient := GetKubeClient()
+	serviceList, err := kubeClient.CoreV1().Services(namespace).List(context.TODO(), options)
+	if err != nil {
+		panic(err.Error())
+	}
+	return serviceList
 }
 
 func GetConfigMap(namespace string, configName string) *v1.ConfigMap {
