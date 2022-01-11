@@ -49,13 +49,13 @@ func GetResourceCount(ctx workflow.Context, countRequest CountRequest) (*string,
 	var response string
 
 	// Remove the spaces that dialog flow seems hellbent on adding.
-	strings.Replace(countRequest.ResourceType, " ", "", -1)
+	strings.Replace(countRequest.ResourceScope, " ", "", -1)
 
 	// Lean up the resource type to make sure whatever we get is in a valid namespace format
 	re := regexp.MustCompile("^[a-zA-Z0-9-]{1,63}")
-	match := re.FindStringSubmatch(countRequest.ResourceType)
+	match := re.FindStringSubmatch(countRequest.ResourceScope)
 	log.Println(match)
-	countRequest.ResourceType = match[0]
+	countRequest.ResourceScope = match[0]
 
 	switch countRequest.ResourceType {
 	case "namespace":
