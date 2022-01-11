@@ -3,12 +3,14 @@ package resource_count
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/google/uuid"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
 	"log"
+	"regexp"
 	"time"
 )
 
@@ -45,6 +47,10 @@ func GetResourceCount(ctx workflow.Context, countRequest CountRequest) (*string,
 	ctx = workflow.WithActivityOptions(ctx, activityOptions)
 
 	var response string
+
+	re := regexp.MustCompile("^[a-zA-Z0-9-]{1,63}")
+	match := re.FindStringSubmatch(countRequest.ResourceType)
+	fmt.Println(match)
 
 	switch countRequest.ResourceType {
 	case "namespace":
