@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/bwmarrin/discordgo"
 	"go.temporal.io/sdk/client"
 	"log"
@@ -46,6 +47,12 @@ func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
+
+	messageJSON, err := json.Marshal(m)
+	if err != nil {
+		log.Fatalln("Failed to marshall message struct: ", err)
+	}
+	log.Println(messageJSON)
 
 	botAuthorId := "<@!" + s.State.User.ID + ">"
 	message := strings.ToLower(m.Content)
