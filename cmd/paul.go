@@ -55,25 +55,31 @@ type MessageLogEntry struct {
 	AuthorUsername string `json:"author_username"`
 }
 
+func logIncomingMessage(message *discordgo.MessageCreate) {
+	// Create a message log entry
+	messageLogEntry := MessageLogEntry{
+		Timestamp:      string(message.Timestamp),
+		MsgID:          message.ID,
+		MsgChannelID:   message.ChannelID,
+		MsgGuildID:     message.GuildID,
+		MsgContent:     message.Content,
+		AuthorID:       message.Author.ID,
+		AuthorBot:      message.Author.Bot,
+		AuthorEmail:    message.Author.Email,
+		AuthorUsername: message.Author.Username,
+	}
+	messageLogEntryJson, err := json.Marshal(messageLogEntry)
+	if err != nil {
+		log.Fatalln("Failed to marshall the message log: ", err)
+	}
+	log.Println(string(messageLogEntryJson))
+}
+
 func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+	logIncomingMessage(m)
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-
-	// Create a message log entry
-	messageLogEntry := MessageLogEntry{
-		Timestamp:      string(m.Timestamp),
-		MsgID:          m.ID,
-		MsgChannelID:   m.ChannelID,
-		MsgGuildID:     m.GuildID,
-		MsgContent:     m.Content,
-		AuthorID:       m.Author.ID,
-		AuthorBot:      m.Author.Bot,
-		AuthorEmail:    m.Author.Email,
-		AuthorUsername: m.Author.Username,
-	}
-
-	log.Println(json.Marshal(messageLogEntry))
 
 	botAuthorId := "<@!" + s.State.User.ID + ">"
 	message := strings.ToLower(m.Content)
