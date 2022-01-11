@@ -1,9 +1,6 @@
 package resource_count
 
 import (
-	"context"
-	"encoding/json"
-	"github.com/google/uuid"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/worker"
@@ -20,40 +17,14 @@ func StartWorker(client client.Client) {
 
 	workerBee.RegisterWorkflow(GetResourceCount)
 	workerBee.RegisterActivity(CountAll)
-	// workerBee.RegisterActivity(CountPods)
-	// workerBee.RegisterActivity(CountServices)
-	// workerBee.RegisterActivity(CountIngresses)
+	workerBee.RegisterActivity(CountPods)
+	workerBee.RegisterActivity(CountServices)
+	workerBee.RegisterActivity(CountNamespaces)
 
 	err := workerBee.Run(worker.InterruptCh())
 	if err != nil {
 		log.Fatalln("unable to start Worker", err)
 	}
-}
-
-func ExecuteWorkflow(clientSession client.Client, requestParameters string) client.WorkflowRun {
-
-	// Setup the workflow options.
-	// TODO: Maybe we could store workflow execution settings in configmap
-	workflowOptions := client.StartWorkflowOptions{
-		ID:        "resources-count_" + uuid.New().String(),
-		TaskQueue: TaskQueue,
-	}
-
-	// Unmarshall the dialogflow queryResult parameters into a CountRequest object
-	countRequest := CountRequest{} //make(map[string]CountRequest)
-	err := json.Unmarshal([]byte(requestParameters), &countRequest)
-	if err != nil {
-		log.Fatalln("Failed to marshall the request parameters")
-		panic(err)
-	}
-
-	// kick off the workflow and
-	workExec, err := clientSession.ExecuteWorkflow(context.Background(), workflowOptions, GetResourceCount, countRequest)
-	if err != nil {
-		log.Fatalln("Failed to execute workflow: ", err)
-		panic(err)
-	}
-	return workExec
 }
 
 func GetResourceCount(ctx workflow.Context, countRequest CountRequest) (*string, error) {
@@ -96,4 +67,30 @@ func GetResourceCount(ctx workflow.Context, countRequest CountRequest) (*string,
 	}
 
 	return &response, nil
+}
+
+func ExecuteWorkflow(clientSession client.Client, requestParameters string) client.WorkflowRun {
+
+	// Setup the workflow options.
+	// TODO: Maybe we could store workflow execution settings in configmap
+	workflowOptions := client.StartWorkflowOptions{
+		ID:        "resources-count_" + uuid.New().String(),
+		TaskQueue: TaskQueue,
+	}
+
+	// Unmarshall the dialogflow queryResult parameters into a CountRequest object
+	countRequest := CountRequest{} //make(map[string]CountRequest)
+	err := json.Unmarshal([]byte(requestParameters), &countRequest)
+	if err != nil {
+		log.Fatalln("Failed to marshall the request parameters")
+		panic(err)
+	}
+
+	// kick off the workflow and
+	workExec, err := clientSession.ExecuteWorkflow(context.Background(), workflowOptions, GetResourceCount, countRequest)
+	if err != nil {
+		log.Fatalln("Failed to execute workflow: ", err)
+		panic(err)
+	}
+	return workExec
 }
