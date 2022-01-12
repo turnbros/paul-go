@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"paul/internal"
+	"paul/internal/dialogflow"
 	"strings"
 	"syscall"
 )
@@ -85,7 +86,7 @@ func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	message := strings.ToLower(m.Content)
 	if strings.HasPrefix(message, botAuthorId) {
 		requestMessage := strings.Replace(message, botAuthorId, "", 1)
-		intentAction, intentParameters, paulResponse := internal.ParseRequest(dialogflowProjectId, requestMessage, dialogflowLanguageCode)
+		intentAction, intentParameters, paulResponse := dialogflow.ParseRequest(dialogflowProjectId, requestMessage, dialogflowLanguageCode)
 
 		if strings.HasPrefix(intentAction, "workflow") {
 			paulResponse = internal.ExecuteWorkflow(temporalClient, intentAction, intentParameters)
