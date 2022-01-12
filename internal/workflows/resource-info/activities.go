@@ -24,7 +24,7 @@ func ListPods(ctx context.Context, infoRequest InfoRequest) (string, error) {
 	}
 	renderedPodList := renderTable(data)
 
-	return fmt.Sprintf("Here you go!\n```%v```", renderedPodList), nil
+	return fmt.Sprintf("Here you go!\n%v", renderedPodList), nil
 }
 
 func GetPodInfo(ctx context.Context, infoRequest InfoRequest) (string, error) {

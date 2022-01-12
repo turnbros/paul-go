@@ -90,7 +90,11 @@ func HandleMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if strings.HasPrefix(intentAction, "workflow") {
 			paulResponse = internal.ExecuteWorkflow(temporalClient, intentAction, intentParameters)
 		}
-
-		s.ChannelMessageSend(m.ChannelID, paulResponse)
+		log.Println("Pauls response: ", paulResponse)
+		sendMsg, sendErr := s.ChannelMessageSend(m.ChannelID, paulResponse)
+		if sendErr != nil {
+			log.Fatalln(sendErr)
+		}
+		log.Println(sendMsg)
 	}
 }
