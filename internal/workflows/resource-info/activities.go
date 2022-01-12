@@ -18,7 +18,7 @@ func ListPods(ctx context.Context, infoRequest InfoRequest) (string, error) {
 		data = append(data, []string{
 			podList[i].Name,
 			podList[i].Namespace,
-			podList[i].Status.String(),
+			podList[i].Status.Reason,
 			time.Since(podList[i].CreationTimestamp.Time).String(),
 		})
 	}
@@ -30,7 +30,7 @@ func ListPods(ctx context.Context, infoRequest InfoRequest) (string, error) {
 func renderTable(tableData [][]string) string {
 	byteBuffer := new(bytes.Buffer)
 	table := tablewriter.NewWriter(byteBuffer)
-	table.SetHeader([]string{"NAME", "NAMESPACE", "READY", "STATUS", "AGE"})
+	table.SetHeader([]string{"NAME", "NAMESPACE", "STATUS", "AGE"})
 
 	for _, v := range tableData {
 		table.Append(v)
