@@ -27,6 +27,11 @@ func ListPods(ctx context.Context, infoRequest InfoRequest) (string, error) {
 	return fmt.Sprintf("Here you go!\n```%v```", renderedPodList), nil
 }
 
+func GetPodInfo(ctx context.Context, infoRequest InfoRequest) (string, error) {
+
+	return fmt.Sprintf("Here you go!\n```%v```", ""), nil
+}
+
 func renderTable(tableData [][]string) string {
 	byteBuffer := new(bytes.Buffer)
 	table := tablewriter.NewWriter(byteBuffer)
