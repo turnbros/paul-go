@@ -2,7 +2,10 @@
 workflows:
 - name: resource-count
   replicas: 1
-  task_queue: ServerCount
+  task_queue: ResourceInfo
+- name: resource-info
+  replicas: 1
+  task_queue: ResourceInfo
 
 temporal:
   host: temporal-frontend.temporal.svc.cluster.local
