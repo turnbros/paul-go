@@ -1,0 +1,44 @@
+package dialogflow_entity
+
+import (
+	"go.temporal.io/sdk/temporal"
+	"go.temporal.io/sdk/workflow"
+	"log"
+	entityActivities "paul/internal/workflows/dialogflow-entity/activities"
+	"time"
+)
+
+func UpdateEntityType(ctx workflow.Context, request EntityRequest) error {
+	retryPolicy := &temporal.RetryPolicy{
+		InitialInterval:    time.Second,
+		BackoffCoefficient: 2.0,
+		MaximumInterval:    time.Minute,
+		MaximumAttempts:    2,
+	}
+	activityOptions := workflow.ActivityOptions{
+		RetryPolicy:         retryPolicy,
+		StartToCloseTimeout: 2 * time.Minute,
+	}
+
+	ctx = workflow.WithActivityOptions(ctx, activityOptions)
+
+	var response error
+	switch request.Operation {
+	case SET:
+		err := workflow.ExecuteActivity(ctx, entityActivities.SetEntityValue, request).Get(ctx, &response)
+		if err != nil {
+			log.Fatalln("SET activity execution failed: ", err)
+		}
+	case ADD:
+		err := workflow.ExecuteActivity(ctx, entityActivities.AddEntityValue, request).Get(ctx, &response)
+		if err != nil {
+			log.Fatalln("ADD activity execution failed: ", err)
+		}
+	case REMOVE:
+		err := workflow.ExecuteActivity(ctx, entityActivities.RemoveEntityValue, request).Get(ctx, &response)
+		if err != nil {
+			log.Fatalln("REMOVE activity execution failed: ", err)
+		}
+	}
+	return response
+}

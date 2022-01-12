@@ -7,12 +7,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"log"
-	"paul/internal/dialogflow"
+	"paul/internal"
 	"paul/internal/util"
+	dialogflow_entity "paul/internal/workflows/dialogflow-entity"
 	"time"
 )
 
 func main() {
+
+	log.Println("Connecting to Temporal...")
+	temporalClient := internal.StartTemporal()
+	defer temporalClient.Close()
 
 	client := util.GetKubeClient()
 	ctx := context.Background()
@@ -76,11 +81,20 @@ func watchPods(watcher watch.Interface) {
 		switch event.Type {
 		case watch.Added:
 			fmt.Printf("Pod %s/%s added\n", pod.ObjectMeta.Namespace, pod.ObjectMeta.Name)
-			dialogflow.AddResourceTypeValue("05519378-3426-4598-8d91-4a01fbb0d2a8", pod.ObjectMeta.Name)
-			//		case watch.Modified:
-			//			fmt.Printf("Pod %s/%s modified\n", pod.ObjectMeta.Namespace, pod.ObjectMeta.Name)
-			//		case watch.Deleted:
-			//			fmt.Printf("Pod %s/%s deleted\n", pod.ObjectMeta.Namespace, pod.ObjectMeta.Name)
+			entityRequest := dialogflow_entity.EntityRequest{
+				Operation:    dialogflow_entity.ADD,
+				EntityType:   "05519378-3426-4598-8d91-4a01fbb0d2a8",
+				EntityValues: []string{pod.ObjectMeta.Name},
+			}
+			_ = dialogflow_entity.ExecuteWorkflow(temporalClient, entityRequest)
+		case watch.Deleted:
+			fmt.Printf("Pod %s/%s deleted\n", pod.ObjectMeta.Namespace, pod.ObjectMeta.Name)
+			entityRequest := dialogflow_entity.EntityRequest{
+				Operation:    dialogflow_entity.REMOVE,
+				EntityType:   "05519378-3426-4598-8d91-4a01fbb0d2a8",
+				EntityValues: []string{pod.ObjectMeta.Name},
+			}
+			_ = dialogflow_entity.ExecuteWorkflow(temporalClient, entityRequest)
 		}
 	}
 }

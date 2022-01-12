@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"paul/internal"
+	dialogflow_entity "paul/internal/workflows/dialogflow-entity"
 	resourceCount "paul/internal/workflows/resource-count"
 	resourceInfo "paul/internal/workflows/resource-info"
 	resourceStatus "paul/internal/workflows/resource-status"
@@ -34,6 +35,9 @@ func main() {
 
 	case "resource-status":
 		resourceStatus.StartWorker(temporalClient)
+
+	case "dialogflow-entity":
+		dialogflow_entity.StartWorker(temporalClient)
 
 	default:
 		log.Fatalln("What the hell is ", *workflow, "? I've never heard of that workflow!")
