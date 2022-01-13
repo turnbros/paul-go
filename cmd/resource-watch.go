@@ -72,7 +72,7 @@ func main() {
 
 	namespaceWatcher, err := kubeClient.CoreV1().Namespaces().Watch(ctx, metav1.ListOptions{ResourceVersion: namespaceList.ListMeta.ResourceVersion})
 	serviceWatcher, err := kubeClient.CoreV1().Services(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: serviceList.ListMeta.ResourceVersion})
-	deploymentWatcher, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: deploymentList.ListMeta.ResourceVersion})
+	//deploymentWatcher, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: deploymentList.ListMeta.ResourceVersion})
 	podWatcher, err := kubeClient.CoreV1().Pods(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: podList.ListMeta.ResourceVersion})
 
 	if err != nil {
