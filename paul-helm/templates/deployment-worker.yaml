@@ -49,7 +49,7 @@ spec:
       volumes:
         - name: dialogflow-credentials
           secret:
-            secretName: {{ include "paul.fullname" . }}-dialogflow-credentials
+            secretName: {{ include "paul.fullname" $ }}-dialogflow-credentials
       {{- with $.Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
