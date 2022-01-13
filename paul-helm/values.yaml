@@ -1,5 +1,8 @@
 
 workflows:
+- name: dialogflow-entity
+  replicas: 1
+  task_queue: DialogflowEntity
 - name: resource-count
   replicas: 1
   task_queue: ResourceInfo
