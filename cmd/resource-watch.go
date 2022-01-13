@@ -28,18 +28,18 @@ func main() {
 	temporalClient := internal.StartTemporal()
 	defer temporalClient.Close()
 
-	client := util.GetKubeClient()
+	kubeClient := util.GetKubeClient()
 	ctx := context.Background()
 
-	var api = client.CoreV1().Endpoints(v1.NamespaceAll)
-	endpoints, err := api.List(ctx, metav1.ListOptions{})
-	if err != nil {
-		panic(err.Error())
-	}
-	resourceVersion := endpoints.ListMeta.ResourceVersion
+	//	var api = kubeClient.CoreV1().Endpoints(v1.NamespaceAll)
+	//	endpoints, err := api.List(ctx, metav1.ListOptions{})
+	//	if err != nil {
+	//		panic(err.Error())
+	//	}
+	//	resourceVersion := endpoints.ListMeta.ResourceVersion
 
 	// Get a list of namespaces
-	namespaceList, err := client.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	namespaceList, err := kubeClient.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 	var namespaceNames []string
 	for _, namespace := range namespaceList.Items {
 		namespaceNames = append(namespaceNames, namespace.Name)
@@ -47,7 +47,7 @@ func main() {
 	setEntity(temporalClient, namespaceEntityTypeId, namespaceNames)
 
 	// Get a list of services
-	serviceList, err := client.CoreV1().Services(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	serviceList, err := kubeClient.CoreV1().Services(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	var serviceNames []string
 	for _, service := range serviceList.Items {
 		serviceNames = append(serviceNames, service.Name)
@@ -55,7 +55,7 @@ func main() {
 	setEntity(temporalClient, serviceEntityTypeId, serviceNames)
 
 	// Get a list of Deployment
-	deploymentList, err := client.AppsV1().Deployments(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	deploymentList, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	var deploymentNames []string
 	for _, deployment := range deploymentList.Items {
 		deploymentNames = append(deploymentNames, deployment.Name)
@@ -63,17 +63,17 @@ func main() {
 	setEntity(temporalClient, deploymentEntityTypeId, deploymentNames)
 
 	// Get a list of pods
-	podList, err := client.CoreV1().Pods(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	podList, err := kubeClient.CoreV1().Pods(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	var podNames []string
 	for _, pod := range podList.Items {
 		podNames = append(podNames, pod.Name)
 	}
 	setEntity(temporalClient, podEntityTypeId, podNames)
 
-	namespaceWatcher, err := client.CoreV1().Namespaces().Watch(ctx, metav1.ListOptions{ResourceVersion: resourceVersion})
-	serviceWatcher, err := client.CoreV1().Services(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: resourceVersion})
-	deploymentWatcher, err := client.AppsV1().Deployments(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: resourceVersion})
-	podWatcher, err := client.CoreV1().Pods(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: resourceVersion})
+	namespaceWatcher, err := kubeClient.CoreV1().Namespaces().Watch(ctx, metav1.ListOptions{ResourceVersion: namespaceList.ListMeta.ResourceVersion})
+	serviceWatcher, err := kubeClient.CoreV1().Services(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: serviceList.ListMeta.ResourceVersion})
+	deploymentWatcher, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: deploymentList.ListMeta.ResourceVersion})
+	podWatcher, err := kubeClient.CoreV1().Pods(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: podList.ListMeta.ResourceVersion})
 
 	if err != nil {
 		log.Fatal(err)
