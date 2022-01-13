@@ -34,11 +34,22 @@ spec:
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command: ["start-worker"]
           args: ["-workflow", "{{ $workflow.name }}"]
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /paul/secrets/dialogflow_creds.json
           envFrom:
             - secretRef:
                 name: {{ include "paul.fullname" $ }}-discord-token
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: dialogflow-credentials
+              mountPath: "/paul/secrets"
+              readOnly: true
+      volumes:
+        - name: dialogflow-credentials
+          secret:
+            secretName: {{ include "paul.fullname" . }}-dialogflow-credentials
       {{- with $.Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
