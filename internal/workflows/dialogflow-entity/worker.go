@@ -14,7 +14,9 @@ import (
 const TaskQueue = "DialogflowEntity"
 
 func StartWorker(client client.Client) {
-	workerOptions := worker.Options{}
+	workerOptions := worker.Options{
+		WorkerActivitiesPerSecond: 5,
+	}
 	workerBee := worker.New(client, TaskQueue, workerOptions)
 	workerBee.RegisterWorkflow(UpdateEntityType)
 
