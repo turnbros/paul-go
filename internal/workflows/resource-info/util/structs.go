@@ -1,4 +1,4 @@
-package resource_info_structs
+package util
 
 type ResourceRequest struct {
 	RequestType            string `json:"request_type"`
