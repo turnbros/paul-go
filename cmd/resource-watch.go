@@ -81,7 +81,7 @@ func main() {
 
 	go watchNamespaces(temporalClient, namespaceWatcher)
 	go watchServices(temporalClient, serviceWatcher)
-	go watchDeployments(temporalClient, deploymentWatcher)
+	//go watchDeployments(temporalClient, deploymentWatcher)
 	go watchPods(temporalClient, podWatcher)
 
 	log.Println("Waiting for events.")
