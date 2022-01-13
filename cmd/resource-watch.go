@@ -16,10 +16,11 @@ import (
 	"time"
 )
 
-var namespaceEntityTypeId = "450b06e5-3fa0-41c4-914c-dfa2bece48d0"
+var namespaceEntityTypeId = "47bbdbd2-75a4-42c0-a091-7aaf0aae12e9"
 var serviceEntityTypeId = "8f548cae-619c-45b9-8c88-813d68e75135"
 var deploymentEntityTypeId = "450b06e5-3fa0-41c4-914c-dfa2bece48d0"
 var podEntityTypeId = "7ed95939-23ff-4ab9-bc9e-7f2a0dcc23d6"
+var nodeEntityTypeId = "1cdfdd7e-e6b9-422b-bd65-9612157e7500"
 
 func main() {
 
