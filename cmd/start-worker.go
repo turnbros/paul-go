@@ -6,9 +6,7 @@ import (
 	"os"
 	"paul/internal"
 	dialogflow_entity "paul/internal/workflows/dialogflow-entity"
-	resourceCount "paul/internal/workflows/resource-count"
 	resourceInfo "paul/internal/workflows/resource-info"
-	resourceStatus "paul/internal/workflows/resource-status"
 )
 
 func main() {
@@ -29,12 +27,6 @@ func main() {
 
 	case "resource-info":
 		resourceInfo.StartWorker(temporalClient)
-
-	case "resource-count":
-		resourceCount.StartWorker(temporalClient)
-
-	case "resource-status":
-		resourceStatus.StartWorker(temporalClient)
 
 	case "dialogflow-entity":
 		dialogflow_entity.StartWorker(temporalClient)
