@@ -36,10 +36,21 @@ func SetEntityValue(ctx context.Context, request dialogflow_entity.EntityRequest
 			Value: entityValue,
 		})
 	}
-
+	updateEntityType := &dialogflowpb.EntityType{
+		Name:                  resourceTypeEntity.Name,
+		DisplayName:           resourceTypeEntity.DisplayName,
+		Kind:                  resourceTypeEntity.Kind,
+		AutoExpansionMode:     resourceTypeEntity.AutoExpansionMode,
+		Entities:              entities,
+		EnableFuzzyExtraction: false,
+	}
+	updateEntityTypeRequest := &dialogflowpb.UpdateEntityTypeRequest{
+		EntityType:   updateEntityType,
+		LanguageCode: "en",
+	}
 	resourceTypeEntity.Entities = entities
 
-	_, updateError := entityClient.UpdateEntityType(ctx, &dialogflowpb.UpdateEntityTypeRequest{EntityType: resourceTypeEntity, LanguageCode: "en"})
+	_, updateError := entityClient.UpdateEntityType(ctx, updateEntityTypeRequest)
 	if updateError != nil {
 		log.Fatalln(fmt.Sprintf("Failed to set the values for entity %v: %v ", resourceTypeEntity.Name, updateError))
 	} else {
