@@ -9,6 +9,7 @@ import (
 	"go.temporal.io/sdk/worker"
 	"go.temporal.io/sdk/workflow"
 	"log"
+	rs "paul/internal/workflows/resource-info/structs"
 	"time"
 )
 
@@ -26,7 +27,7 @@ func StartWorker(client client.Client) {
 	}
 }
 
-func GetResourceInfo(ctx workflow.Context, infoRequest InfoRequest) (*string, error) {
+func GetResourceInfo(ctx workflow.Context, resourceRequest rs.ResourceRequest) (*string, error) {
 	retryPolicy := &temporal.RetryPolicy{
 		InitialInterval:    time.Second,
 		BackoffCoefficient: 2.0,
@@ -41,9 +42,9 @@ func GetResourceInfo(ctx workflow.Context, infoRequest InfoRequest) (*string, er
 	ctx = workflow.WithActivityOptions(ctx, activityOptions)
 
 	var response string
-	switch infoRequest.ResourceType {
+	switch resourceRequest.ResourceType {
 	case "pod":
-		err := workflow.ExecuteActivity(ctx, ListPods, infoRequest).Get(ctx, &response)
+		err := workflow.ExecuteActivity(ctx, ListPods, resourceRequest).Get(ctx, &response)
 		if err != nil {
 			return nil, err
 		}

@@ -7,11 +7,12 @@ import (
 	"github.com/olekukonko/tablewriter"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"paul/internal/util"
+	rs "paul/internal/workflows/resource-info/structs"
 	"time"
 )
 
-func ListPods(ctx context.Context, infoRequest InfoRequest) (string, error) {
-	podList := util.ListKubePods(infoRequest.ResourceScope, metav1.ListOptions{}).Items
+func ListPods(ctx context.Context, resourceRequest rs.ResourceRequest) (string, error) {
+	podList := util.ListKubePods(resourceRequest.ResourceKubeNamespace, metav1.ListOptions{}).Items
 
 	var data [][]string
 	for i := 1; i < len(podList); i++ {
@@ -27,7 +28,7 @@ func ListPods(ctx context.Context, infoRequest InfoRequest) (string, error) {
 	return fmt.Sprintf("Here you go!\n%v", renderedPodList), nil
 }
 
-func GetPodInfo(ctx context.Context, infoRequest InfoRequest) (string, error) {
+func GetPodInfo(ctx context.Context, infoRequest rs.ResourceRequest) (string, error) {
 
 	return fmt.Sprintf("Here you go!\n```%v```", ""), nil
 }
