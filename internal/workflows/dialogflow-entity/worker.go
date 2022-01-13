@@ -7,6 +7,7 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 	"log"
+	"paul/internal/workflows/dialogflow-entity/activities"
 	"paul/internal/workflows/dialogflow-entity/util"
 )
 
@@ -17,9 +18,9 @@ func StartWorker(client client.Client) {
 	workerBee := worker.New(client, TaskQueue, workerOptions)
 	workerBee.RegisterWorkflow(UpdateEntityType)
 
-	//workerBee.RegisterActivity(CountAll)
-	//workerBee.RegisterActivity(CountAll)
-	//workerBee.RegisterActivity(CountAll)
+	workerBee.RegisterActivity(activities.SetEntityValue)
+	workerBee.RegisterActivity(activities.AddEntityValue)
+	workerBee.RegisterActivity(activities.RemoveEntityValue)
 
 	err := workerBee.Run(worker.InterruptCh())
 	if err != nil {
