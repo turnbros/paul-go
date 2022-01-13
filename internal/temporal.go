@@ -27,18 +27,16 @@ func ExecuteWorkflow(temporalClient client.Client, intentAction string, intentPa
 	var workExec client.WorkflowRun
 	var executionResponse string
 
-	workExec = resource_info.ExecuteWorkflow(temporalClient, intentParameters)
-
-	//	switch intentAction {
-	//	case "workflow.resource_info":
-	//		workExec = resource_info.ExecuteWorkflow(temporalClient, intentParameters)
-	//	case "workflow.resource_count":
-	//		workExec = resource_count.ExecuteWorkflow(temporalClient, intentParameters)
-	//	case "workflow.resource_status":
-	//		workExec = resource_status.ExecuteWorkflow(temporalClient, intentParameters)
-	//	default:
-	//		panic("can't find workflow: " + intentAction)
-	//	}
+	switch intentAction {
+	case "workflow.resource_info":
+		workExec = resource_info.ExecuteWorkflow(temporalClient, intentParameters)
+	case "workflow.resource_count":
+		workExec = resource_info.ExecuteWorkflow(temporalClient, intentParameters)
+	case "workflow.resource_status":
+		workExec = resource_info.ExecuteWorkflow(temporalClient, intentParameters)
+	default:
+		panic("can't find workflow: " + intentAction)
+	}
 
 	log.Println("Started workflow", "WorkflowID", workExec.GetID(), "RunID", workExec.GetRunID())
 	err := workExec.Get(context.Background(), &executionResponse)
