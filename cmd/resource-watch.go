@@ -55,8 +55,7 @@ func main() {
 	setEntity(temporalClient, serviceEntityTypeId, serviceNames)
 
 	// Get a list of Deployment
-	deploymentApi := client.AppsV1().Deployments(v1.NamespaceAll)
-	deploymentList, err := deploymentApi.List(ctx, metav1.ListOptions{})
+	deploymentList, err := client.AppsV1().Deployments(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
 	var deploymentNames []string
 	for _, deployment := range deploymentList.Items {
 		deploymentNames = append(deploymentNames, deployment.Name)
@@ -72,8 +71,8 @@ func main() {
 	setEntity(temporalClient, podEntityTypeId, podNames)
 
 	namespaceWatcher, err := client.CoreV1().Namespaces().Watch(ctx, metav1.ListOptions{ResourceVersion: resourceVersion})
-	serviceWatcher, err := client.CoreV1().Services(v1.NamespaceDefault).Watch(ctx, metav1.ListOptions{ResourceVersion: resourceVersion})
-	deploymentWatcher, err := client.CoreV1().Services(v1.NamespaceDefault).Watch(ctx, metav1.ListOptions{ResourceVersion: resourceVersion})
+	serviceWatcher, err := client.CoreV1().Services(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: resourceVersion})
+	deploymentWatcher, err := client.AppsV1().Deployments(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: resourceVersion})
 	podWatcher, err := client.CoreV1().Pods(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: resourceVersion})
 
 	if err != nil {
@@ -115,14 +114,14 @@ func watchServices(temporalClient client.Client, watcher watch.Interface) {
 			fmt.Printf("Service %s/%s added\n", svc.ObjectMeta.Namespace, svc.ObjectMeta.Name)
 			addEntity(temporalClient, entityTypeId, []string{svc.ObjectMeta.Name})
 		case watch.Deleted:
-			fmt.Printf("Service %s/%s deleted", svc.ObjectMeta.Namespace, svc.ObjectMeta.Name)
+			fmt.Printf("Service %s/%s deleted\n", svc.ObjectMeta.Namespace, svc.ObjectMeta.Name)
 			removeEntity(temporalClient, entityTypeId, []string{svc.ObjectMeta.Name})
 		}
 	}
 }
 
 func watchDeployments(temporalClient client.Client, watcher watch.Interface) {
-	entityTypeId := podEntityTypeId
+	entityTypeId := deploymentEntityTypeId
 	for event := range watcher.ResultChan() {
 		deployment := event.Object.(*appsV1.Deployment)
 		switch event.Type {
