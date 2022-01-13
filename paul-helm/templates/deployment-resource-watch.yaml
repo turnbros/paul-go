@@ -1,0 +1,64 @@
+{{- range $workflow := .Values.workflows }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "paul.fullname" $ }}-resource-watcher
+  labels:
+    paul.turnbros.app/role: watcher
+    paul.turnbros.app/component: workflow
+    paul.turnbros.app/environment: prod-ish
+    {{- include "paul.labels" $ | nindent 4 }}
+spec:
+  replicas: {{ $workflow.replicas }}
+  selector:
+    matchLabels:
+      {{- include "paul.selectorLabels" $ | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "paul.selectorLabels" $ | nindent 8 }}
+    spec:
+    {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "paul.serviceAccountName" $ }}
+      securityContext:
+        {{- toYaml $.Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $.Chart.Name }}
+          securityContext:
+            {{- toYaml $.Values.securityContext | nindent 12 }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ["resource-watch"]
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /paul/secrets/dialogflow_creds.json
+          envFrom:
+            - secretRef:
+                name: {{ include "paul.fullname" $ }}-discord-token
+          resources:
+            {{- toYaml $.Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: dialogflow-credentials
+              mountPath: "/paul/secrets"
+              readOnly: true
+      volumes:
+        - name: dialogflow-credentials
+          secret:
+            secretName: { { include "paul.fullname" . } }-dialogflow-credentials
+      {{- with $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with $.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

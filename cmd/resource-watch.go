@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"go.temporal.io/sdk/client"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
@@ -10,6 +11,7 @@ import (
 	"paul/internal"
 	"paul/internal/util"
 	dialogflow_entity "paul/internal/workflows/dialogflow-entity"
+	dialogflow_entity_util "paul/internal/workflows/dialogflow-entity/util"
 	"time"
 )
 
@@ -37,9 +39,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	go watchNamespaces(namespaceWatcher)
-	go watchServices(serviceWatcher)
-	go watchPods(podWatcher)
+	go watchNamespaces(temporalClient, namespaceWatcher)
+	go watchServices(temporalClient, serviceWatcher)
+	go watchPods(temporalClient, podWatcher)
 
 	log.Println("Waiting for events.")
 	for {
@@ -47,7 +49,7 @@ func main() {
 	}
 }
 
-func watchNamespaces(watcher watch.Interface) {
+func watchNamespaces(temporalClient client.Client, watcher watch.Interface) {
 	for event := range watcher.ResultChan() {
 		svc := event.Object.(*v1.Namespace)
 		switch event.Type {
@@ -61,7 +63,7 @@ func watchNamespaces(watcher watch.Interface) {
 	}
 }
 
-func watchServices(watcher watch.Interface) {
+func watchServices(temporalClient client.Client, watcher watch.Interface) {
 	for event := range watcher.ResultChan() {
 		svc := event.Object.(*v1.Service)
 		switch event.Type {
@@ -75,22 +77,22 @@ func watchServices(watcher watch.Interface) {
 	}
 }
 
-func watchPods(watcher watch.Interface) {
+func watchPods(temporalClient client.Client, watcher watch.Interface) {
 	for event := range watcher.ResultChan() {
 		pod := event.Object.(*v1.Pod)
 		switch event.Type {
 		case watch.Added:
 			fmt.Printf("Pod %s/%s added\n", pod.ObjectMeta.Namespace, pod.ObjectMeta.Name)
-			entityRequest := dialogflow_entity.EntityRequest{
-				Operation:    dialogflow_entity.ADD,
+			entityRequest := dialogflow_entity_util.EntityRequest{
+				Operation:    dialogflow_entity_util.ADD,
 				EntityType:   "05519378-3426-4598-8d91-4a01fbb0d2a8",
 				EntityValues: []string{pod.ObjectMeta.Name},
 			}
 			_ = dialogflow_entity.ExecuteWorkflow(temporalClient, entityRequest)
 		case watch.Deleted:
 			fmt.Printf("Pod %s/%s deleted\n", pod.ObjectMeta.Namespace, pod.ObjectMeta.Name)
-			entityRequest := dialogflow_entity.EntityRequest{
-				Operation:    dialogflow_entity.REMOVE,
+			entityRequest := dialogflow_entity_util.EntityRequest{
+				Operation:    dialogflow_entity_util.REMOVE,
 				EntityType:   "05519378-3426-4598-8d91-4a01fbb0d2a8",
 				EntityValues: []string{pod.ObjectMeta.Name},
 			}

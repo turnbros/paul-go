@@ -7,6 +7,7 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 	"log"
+	"paul/internal/workflows/dialogflow-entity/util"
 )
 
 const TaskQueue = "DialogflowEntity"
@@ -26,7 +27,7 @@ func StartWorker(client client.Client) {
 	}
 }
 
-func ExecuteWorkflow(clientSession client.Client, entityRequest EntityRequest) client.WorkflowRun {
+func ExecuteWorkflow(clientSession client.Client, entityRequest util.EntityRequest) client.WorkflowRun {
 
 	// Setup the workflow options.
 	// TODO: Maybe we could store workflow execution settings in configmap

@@ -1,4 +1,4 @@
-package dialogflow_entity
+package util
 
 type EntityOP int
 
