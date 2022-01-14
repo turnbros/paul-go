@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "paul.fullname" . }}
+  name: {{ include "paul.fullname" . }}-event-watcher
   labels:
     paul.turnbros.app/role: watcher
     paul.turnbros.app/component: kubernetes-events
