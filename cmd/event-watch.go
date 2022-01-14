@@ -21,16 +21,20 @@ func main() {
 	discordClient.Identify.Intents = discordgo.IntentsGuildMessages
 	err := discordClient.Open()
 	if err != nil {
-		log.Fatalln("error opening Discord client connection,", err)
+		log.Fatalln("Error opening Discord client connection,", err)
 	}
 
 	kubeClient := util.GetKubeClient()
 	ctx := context.Background()
 
 	eventList, err := kubeClient.CoreV1().Events(metav1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		log.Fatalln("Failed to list events: ", err)
+	}
+
 	eventWatcher, err := kubeClient.CoreV1().Events(metav1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: eventList.ListMeta.ResourceVersion})
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalln("Failed to start the event watcher: ", err)
 	}
 
 	log.Println("Waiting for cluster events...")
@@ -38,7 +42,7 @@ func main() {
 		ev := event.Object.(*v1.Event)
 		switch event.Type {
 		case watch.Added:
-			fmt.Println("Event received: ", ev.ObjectMeta.Name)
+			log.Println("Event received: ", ev.ObjectMeta.Name)
 			message := fmt.Sprintf("%v - %v %v\n", ev.Type, ev.InvolvedObject.Kind, ev.Reason)
 			message += fmt.Sprintf("```yaml\n")
 			message += fmt.Sprintf("Namespace: %v\n", ev.Namespace)
@@ -55,18 +59,18 @@ func main() {
 
 			_, sendError := discordClient.ChannelMessageSend(destinationChannel, message)
 			if sendError != nil {
-				log.Fatalln(fmt.Sprintf("Failed to send message: %v", sendError))
+				log.Fatalln("Failed to send message: ", sendError)
 			}
 		case watch.Error:
-			fmt.Printf("Error Event %s \n", ev.ObjectMeta.Name)
+			log.Printf("Error Event %s \n", ev.ObjectMeta.Name)
 		case watch.Bookmark:
-			fmt.Printf("Bookmark Event %s \n", ev.ObjectMeta.Name)
+			log.Printf("Bookmark Event %s \n", ev.ObjectMeta.Name)
 		case watch.Modified:
-			fmt.Printf("Modified Event %s \n", ev.ObjectMeta.Name)
-			fmt.Printf("Modified Event %s \n", ev.Type)
+			log.Printf("Modified Event %s \n", ev.ObjectMeta.Name)
+			log.Printf("Modified Event %s \n", ev.Type)
 		case watch.Deleted:
-			fmt.Printf("Deleted Event %s \n", ev.ObjectMeta.Name)
-			fmt.Printf("Modified Event %s \n", ev.Type)
+			log.Printf("Deleted Event %s \n", ev.ObjectMeta.Name)
+			log.Printf("Modified Event %s \n", ev.Type)
 		}
 	}
 }
