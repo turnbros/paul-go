@@ -1,4 +1,4 @@
-module paul
+module paul-go
 
 go 1.17
 
