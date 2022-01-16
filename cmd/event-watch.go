@@ -8,8 +8,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"log"
-	"paul/internal"
-	"paul/internal/util"
+	"paul-go/internal"
+	"paul-go/internal/util"
 )
 
 const importantEventsChannelID = "931301531179966515"

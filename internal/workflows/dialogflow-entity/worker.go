@@ -7,8 +7,8 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 	"log"
-	"paul/internal/workflows/dialogflow-entity/activities"
-	"paul/internal/workflows/dialogflow-entity/util"
+	"paul-go/internal/workflows/dialogflow-entity/activities"
+	"paul-go/internal/workflows/dialogflow-entity/util"
 )
 
 const TaskQueue = "DialogflowEntity"

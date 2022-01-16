@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"go.temporal.io/sdk/client"
 	"log"
-	"paul/internal/util"
-	resource_info "paul/internal/workflows/resource-info"
+	"paul-go/internal/util"
+	resource_info "paul-go/internal/workflows/resource-info"
 )
 
 func StartTemporal() client.Client {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"paul/internal/util"
-	util2 "paul/internal/workflows/resource-info/util"
+	"paul-go/internal/util"
+	util2 "paul-go/internal/workflows/resource-info/util"
 	"time"
 )
 

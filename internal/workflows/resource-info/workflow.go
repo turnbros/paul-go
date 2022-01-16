@@ -3,8 +3,8 @@ package resource_info
 import (
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
-	"paul/internal/workflows/resource-info/activities"
-	rs "paul/internal/workflows/resource-info/util"
+	"paul-go/internal/workflows/resource-info/activities"
+	rs "paul-go/internal/workflows/resource-info/util"
 	"time"
 )
 

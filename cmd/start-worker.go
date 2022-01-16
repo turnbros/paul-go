@@ -4,9 +4,9 @@ import (
 	"flag"
 	"log"
 	"os"
-	"paul/internal"
-	dialogflow_entity "paul/internal/workflows/dialogflow-entity"
-	resourceInfo "paul/internal/workflows/resource-info"
+	"paul-go/internal"
+	dialogflow_entity "paul-go/internal/workflows/dialogflow-entity"
+	resourceInfo "paul-go/internal/workflows/resource-info"
 )
 
 func main() {

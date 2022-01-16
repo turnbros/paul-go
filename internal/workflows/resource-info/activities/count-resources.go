@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"paul/internal/util"
-	rs "paul/internal/workflows/resource-info/util"
+	"paul-go/internal/util"
+	rs "paul-go/internal/workflows/resource-info/util"
 )
 
 func CountNamespaces(ctx context.Context, resourceRequest rs.ResourceRequest) (string, error) {

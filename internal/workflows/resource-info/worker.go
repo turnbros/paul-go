@@ -7,8 +7,8 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 	"log"
-	"paul/internal/workflows/resource-info/activities"
-	rs "paul/internal/workflows/resource-info/util"
+	"paul-go/internal/workflows/resource-info/activities"
+	rs "paul-go/internal/workflows/resource-info/util"
 )
 
 const TaskQueue = "ResourceInfo"

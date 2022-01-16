@@ -6,7 +6,7 @@ import (
 	"fmt"
 	dialogflowpb "google.golang.org/genproto/googleapis/cloud/dialogflow/v2"
 	"log"
-	dialogflow_entity "paul/internal/workflows/dialogflow-entity/util"
+	dialogflow_entity "paul-go/internal/workflows/dialogflow-entity/util"
 )
 
 func SetEntityValue(ctx context.Context, request dialogflow_entity.EntityRequest) error {

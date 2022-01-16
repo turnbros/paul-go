@@ -4,8 +4,8 @@ import (
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 	"log"
-	entityActivities "paul/internal/workflows/dialogflow-entity/activities"
-	util "paul/internal/workflows/dialogflow-entity/util"
+	entityActivities "paul-go/internal/workflows/dialogflow-entity/activities"
+	util "paul-go/internal/workflows/dialogflow-entity/util"
 	"time"
 )
 

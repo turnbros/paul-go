@@ -9,10 +9,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"log"
-	"paul/internal"
-	"paul/internal/util"
-	dialogflow_entity "paul/internal/workflows/dialogflow-entity"
-	dialogflow_entity_util "paul/internal/workflows/dialogflow-entity/util"
+	"paul-go/internal"
+	"paul-go/internal/util"
+	dialogflow_entity "paul-go/internal/workflows/dialogflow-entity"
+	dialogflow_entity_util "paul-go/internal/workflows/dialogflow-entity/util"
 	"time"
 )
 

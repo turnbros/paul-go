@@ -5,7 +5,6 @@ go 1.17
 require (
 	cloud.google.com/go/dialogflow v1.3.0
 	github.com/bwmarrin/discordgo v0.23.2
-	github.com/golang/glog v1.0.0
 	github.com/google/uuid v1.3.0
 	github.com/olekukonko/tablewriter v0.0.5
 	go.temporal.io/sdk v1.12.0
@@ -29,6 +28,7 @@ require (
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/gogo/status v1.1.0 // indirect
+	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"paul/internal"
-	"paul/internal/dialogflow"
+	"paul-go/internal"
+	"paul-go/internal/dialogflow"
 	"strings"
 	"syscall"
 )

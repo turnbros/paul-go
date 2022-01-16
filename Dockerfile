@@ -1,6 +1,6 @@
 FROM golang:1.16-alpine as paul-builder
 
-WORKDIR /paul
+WORKDIR /paul-go
 
 # Download dependencies
 COPY go.mod ./
@@ -15,6 +15,6 @@ RUN ./scripts/build.sh
 
 FROM alpine:3.15
 RUN adduser -h "/paul" -u 3240 -g "Paul" -D paul
-COPY --from=paul-builder --chown=paul /paul/dist/* /usr/local/bin/
+COPY --from=paul-builder --chown=paul /paul-go/dist/* /usr/local/bin/
 USER paul
 EXPOSE 8443
