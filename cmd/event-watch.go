@@ -14,6 +14,7 @@ import (
 
 const importantEventsChannelID = "931301531179966515"
 const normalEventsChannelID = "931301737028001802"
+const testEventsChannelID = "932115780768759878"
 
 func main() {
 	discordClient := internal.StartDiscord()
@@ -49,6 +50,7 @@ func main() {
 			message += fmt.Sprintf("Name: %v\n", ev.Name)
 			message += fmt.Sprintf("Message: %v\n", ev.Message)
 			message += fmt.Sprintf("```\n")
+			message += fmt.Sprintf("||uid: `%v`||\n", ev.InvolvedObject.UID)
 
 			var destinationChannel string
 			if ev.Type == "Normal" {
@@ -56,6 +58,8 @@ func main() {
 			} else {
 				destinationChannel = importantEventsChannelID
 			}
+
+			destinationChannel = testEventsChannelID
 
 			_, sendError := discordClient.ChannelMessageSend(destinationChannel, message)
 			if sendError != nil {
@@ -67,10 +71,12 @@ func main() {
 			log.Printf("Bookmark Event %s \n", ev.ObjectMeta.Name)
 		case watch.Modified:
 			log.Printf("Modified Event %s \n", ev.ObjectMeta.Name)
+			log.Printf("Modified Event %s \n", ev.ObjectMeta.UID)
 			log.Printf("Modified Event %s \n", ev.Type)
 		case watch.Deleted:
 			log.Printf("Deleted Event %s \n", ev.ObjectMeta.Name)
-			log.Printf("Modified Event %s \n", ev.Type)
+			log.Printf("Deleted Event %s \n", ev.ObjectMeta.UID)
+			log.Printf("Deleted Event %s \n", ev.Type)
 		}
 	}
 }

@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/watch"
 	"log"
+	"paul-go/internal/util"
 	"paul-go/internal/workflows/cluster-event/activities"
 )
 
@@ -29,21 +28,26 @@ func StartWorker(client client.Client) {
 	}
 }
 
-func ExecuteWorkflow(clientSession client.Client, eventOp watch.EventType, event v1.Event) {
-	workflowID := fmt.Sprintf("cluster-event-%v", event.UID)
+func UpdateWorkflow(clientSession client.Client, event util.ClusterEventMessage) {
 
-	if eventOp != watch.Added {
-		err := clientSession.SignalWorkflow(context.Background(), workflowID, "", string(eventOp), event)
-		if err != nil {
-			log.Fatalln("Error signaling client", err)
-		}
+}
+
+func ExecuteWorkflow(clientSession client.Client, event util.ClusterEventMessage) {
+	log.Println("Starting Worker ExecuteWorkflow...")
+	workflowID := fmt.Sprintf("cluster-event-%v", event.ObjectUID)
+
+	log.Println("Workflow exists, sending signal")
+	err := clientSession.SignalWorkflow(context.Background(), workflowID, "", string(eventOp), event)
+	if err != nil {
+		log.Fatalln("Error signaling client", err)
 	}
 
 	workflowOptions := client.StartWorkflowOptions{
 		ID:        workflowID,
 		TaskQueue: TaskQueue,
 	}
-	_, err := clientSession.ExecuteWorkflow(context.Background(), workflowOptions, ClusterEventMessage, eventOp, event)
+	log.Println("Adding workflow...")
+	_, err := clientSession.ExecuteWorkflow(context.Background(), workflowOptions, ClusterEventMessage, string(eventOp), event)
 	if err != nil {
 		log.Fatalln("Failed to execute workflow: ", err)
 	}
