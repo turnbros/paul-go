@@ -6,9 +6,9 @@ workflows:
 - name: resource-info
   replicas: 1
   task_queue: ResourceInfo
-- name: resource-info
+- name: cluster-events
   replicas: 1
-  task_queue: ResourceInfo
+  task_queue: ClusterEvents
 
 temporal:
   host: temporal-frontend.temporal.svc.cluster.local
