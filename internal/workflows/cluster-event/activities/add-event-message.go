@@ -3,19 +3,20 @@ package activities
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
+	"github.com/bwmarrin/discordgo"
 	"log"
+	"paul-go/internal"
 	"paul-go/internal/util"
 )
 
 func AddEventMessage(ctx context.Context, channelId string, event util.ClusterEventMessage) (string, error) {
-	/*discordClient := internal.StartDiscord()
+	discordClient := internal.StartDiscord()
 	defer discordClient.Close()
 	discordClient.Identify.Intents = discordgo.IntentsGuildMessages
 	err := discordClient.Open()
 	if err != nil {
 		log.Fatalln("Error opening Discord client connection,", err)
-	}*/
+	}
 
 	log.Println("Event received: ", event.EventName)
 	message := fmt.Sprintf("%v - %v %v\n", event.EventType, event.ObjectKind, event.EventReason)
@@ -28,12 +29,9 @@ func AddEventMessage(ctx context.Context, channelId string, event util.ClusterEv
 	message += fmt.Sprintf("||uid: `%v`||\n", event.ObjectUID)
 
 	log.Println(message)
-	testId, _ := uuid.NewUUID()
-	return testId.String(), nil
-
-	/*eventMessage, sendError := discordClient.ChannelMessageSend(channelId, message)
+	eventMessage, sendError := discordClient.ChannelMessageSend(channelId, message)
 	if sendError != nil {
 		log.Fatalln("Failed to send message: ", sendError)
 	}
-	return eventMessage.ID*/
+	return eventMessage.ID, nil
 }

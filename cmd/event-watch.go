@@ -6,7 +6,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/watch"
 	"log"
 	"paul-go/internal"
 	"paul-go/internal/util"
@@ -41,42 +40,29 @@ func main() {
 	log.Println("Waiting for cluster events...")
 	for event := range eventWatcher.ResultChan() {
 		ev := event.Object.(*v1.Event)
-		switch event.Type {
-		case watch.Added:
-			log.Println("Event received: ", ev.ObjectMeta.Name)
-			message := fmt.Sprintf("%v - %v %v\n", ev.Type, ev.InvolvedObject.Kind, ev.Reason)
-			message += fmt.Sprintf("```yaml\n")
-			message += fmt.Sprintf("Namespace: %v\n", ev.Namespace)
-			message += fmt.Sprintf("Name: %v\n", ev.Name)
-			message += fmt.Sprintf("Message: %v\n", ev.Message)
-			message += fmt.Sprintf("```\n")
-			message += fmt.Sprintf("||uid: `%v`||\n", ev.InvolvedObject.UID)
+		postDiscordMessage(discordClient, string(event.Type), *ev)
+	}
+}
 
-			var destinationChannel string
-			if ev.Type == "Normal" {
-				destinationChannel = normalEventsChannelID
-			} else {
-				destinationChannel = importantEventsChannelID
-			}
+func postDiscordMessage(discordClient *discordgo.Session, action string, ev v1.Event) {
+	log.Println(fmt.Sprintf("Event %v: %v", action, ev.ObjectMeta.Name))
+	message := fmt.Sprintf("%v - %v %v\n", ev.Type, ev.InvolvedObject.Kind, ev.Reason)
+	message += fmt.Sprintf("```yaml\n")
+	message += fmt.Sprintf("Namespace: %v\n", ev.Namespace)
+	message += fmt.Sprintf("Name: %v\n", ev.Name)
+	message += fmt.Sprintf("Message: %v\n", ev.Message)
+	message += fmt.Sprintf("```\n")
+	message += fmt.Sprintf("UUID: %v\n", ev.UID)
 
-			destinationChannel = testEventsChannelID
+	var destinationChannel string
+	if ev.Type == "Normal" {
+		destinationChannel = normalEventsChannelID
+	} else {
+		destinationChannel = importantEventsChannelID
+	}
 
-			_, sendError := discordClient.ChannelMessageSend(destinationChannel, message)
-			if sendError != nil {
-				log.Fatalln("Failed to send message: ", sendError)
-			}
-		case watch.Error:
-			log.Printf("Error Event %s \n", ev.ObjectMeta.Name)
-		case watch.Bookmark:
-			log.Printf("Bookmark Event %s \n", ev.ObjectMeta.Name)
-		case watch.Modified:
-			log.Printf("Modified Event %s \n", ev.ObjectMeta.Name)
-			log.Printf("Modified Event %s \n", ev.ObjectMeta.UID)
-			log.Printf("Modified Event %s \n", ev.Type)
-		case watch.Deleted:
-			log.Printf("Deleted Event %s \n", ev.ObjectMeta.Name)
-			log.Printf("Deleted Event %s \n", ev.ObjectMeta.UID)
-			log.Printf("Deleted Event %s \n", ev.Type)
-		}
+	_, sendError := discordClient.ChannelMessageSend(destinationChannel, message)
+	if sendError != nil {
+		log.Fatalln("Failed to send message: ", sendError)
 	}
 }

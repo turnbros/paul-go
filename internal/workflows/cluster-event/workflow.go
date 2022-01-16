@@ -23,62 +23,55 @@ func ClusterEventMessage(ctx workflow.Context, eventOp string, event util.Cluste
 		WaitForCancellation:    false,
 	})
 
-	// This ain't right. Needs to create or wait for signal.
+	var messageId string
+	var activityErr error
 	objId2MsgId := make(map[string]string)
 
 	// Create the Discord message
-	var activityErr error
-	var messageId string
 	execErr := workflow.ExecuteActivity(ctx, activities.AddEventMessage, testEventsChannelID, event).Get(ctx, &messageId)
 	if execErr != nil {
 		log.Fatalln("ADD activity execution failed: ", execErr)
 	}
-	objId2MsgId[event.ObjectUID] = messageId
 
-	/*	switch eventOp {
-		case "ADDED": // watch.Added:
-			var messageId string
-			execErr := workflow.ExecuteActivity(ctx, activities.AddEventMessage, testEventsChannelID, event).Get(ctx, &messageId)
-			if execErr != nil {
-				log.Fatalln("ADD activity execution failed: ", execErr)
-			}
-			objId2MsgId[event.ObjectUID] = messageId
+	objId2MsgId[event.EventUID] = messageId
 
-		case "MODIFIED":
-			execErr := workflow.ExecuteActivity(ctx, activities.UpdateEventMessage, testEventsChannelID, objId2MsgId[event.ObjectUID], event).Get(ctx, &activityErr)
-			if execErr != nil {
-				log.Fatalln("Modify activity execution failed: ", execErr)
-			}
-
-		case "DELETED":
-			execErr := workflow.ExecuteActivity(ctx, activities.RemoveEventMessage, testEventsChannelID, objId2MsgId[event.ObjectUID]).Get(ctx, &activityErr)
-			if execErr != nil {
-				log.Fatalln("Delete activity execution failed: ", execErr)
-			}
-
-		}*/
-
-	var signalName = "MODIFIED"
-	modifiedSignalChan := workflow.GetSignalChannel(ctx, signalName)
-	sModified := workflow.NewSelector(ctx)
-	sModified.AddReceive(modifiedSignalChan, func(c workflow.ReceiveChannel, more bool) {
-		var signalVal util.ClusterEventMessage
-		c.Receive(ctx, &signalVal)
-		workflow.GetLogger(ctx).Info("Received signal!", "Signal", signalName, "value", signalVal.EventMessage)
-		execErr := workflow.ExecuteActivity(ctx, activities.UpdateEventMessage, testEventsChannelID, objId2MsgId[signalVal.ObjectUID], signalVal).Get(ctx, &activityErr)
-		if execErr != nil {
-			log.Fatalln("Modify activity execution failed: ", execErr)
-		}
-	})
-
+	var signalName = "EVENT_MODIFIED"
 	for {
-		sModified.Select(ctx)
+		signalChan := workflow.GetSignalChannel(ctx, signalName)
+		signal := workflow.NewSelector(ctx)
+		signal.AddReceive(signalChan, func(c workflow.ReceiveChannel, more bool) {
+			var signalVal util.ClusterEventMessage
+			c.Receive(ctx, &signalVal)
+			workflow.GetLogger(ctx).Info("Received signal!", "Signal", signalName, "value", signalVal.EventMessage)
+
+			switch event.EventType {
+			case "MODIFIED":
+				activityErr = eventModified(ctx, objId2MsgId[signalVal.ObjectUID], event)
+			case "DELETED":
+				activityErr = eventDeleted(ctx, objId2MsgId[signalVal.ObjectUID])
+			}
+		})
+		signal.Select(ctx)
 	}
 
 	log.Println("All done with workflow")
 	return activityErr
 }
 
-func eventMessageModified(ctx workflow.Context, eventOp string, event util.ClusterEventMessage) error {
-	return nil
+func eventModified(ctx workflow.Context, discordMsgID string, event util.ClusterEventMessage) error {
+	var activityErr error
+	execErr := workflow.ExecuteActivity(ctx, activities.UpdateEventMessage, testEventsChannelID, discordMsgID, event).Get(ctx, &activityErr)
+	if execErr != nil {
+		log.Fatalln("Modify activity execution failed: ", execErr)
+	}
+	return activityErr
+}
+
+func eventDeleted(ctx workflow.Context, discordMsgID string) error {
+	var activityErr error
+	execErr := workflow.ExecuteActivity(ctx, activities.RemoveEventMessage, testEventsChannelID, discordMsgID).Get(ctx, &activityErr)
+	if execErr != nil {
+		log.Fatalln("Delete activity execution failed: ", execErr)
+	}
+	return activityErr
 }

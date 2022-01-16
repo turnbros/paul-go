@@ -17,8 +17,6 @@ func RemoveEventMessage(ctx context.Context, channelId string, eventMessageId st
 	}
 
 	log.Println("deleting: message")
-	return nil
-
-	/*deleteErr := discordClient.ChannelMessageDelete(channelId, eventMessageId)
-	return deleteErr*/
+	deleteErr := discordClient.ChannelMessageDelete(channelId, eventMessageId)
+	return deleteErr
 }

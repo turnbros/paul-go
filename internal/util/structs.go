@@ -15,6 +15,7 @@ type ClusterEventMessage struct {
 	EventMessage          string `json:"event_message"`
 	EventCount            int32  `json:"event_count"`
 	EventType             string `json:"event_type"`
+	EventUID              string `json:"event_uid"`
 	EventFirstTimestamp   string `json:"event_first_timestamp"`
 	EventLastTimestamp    string `json:"event_last_timestamp"`
 }

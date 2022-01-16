@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"go.temporal.io/sdk/client"
 	v1 "k8s.io/api/core/v1"
@@ -9,7 +10,6 @@ import (
 	"log"
 	"paul-go/internal"
 	"paul-go/internal/util"
-	cluster_event "paul-go/internal/workflows/cluster-event"
 	"strings"
 	"time"
 )
@@ -29,13 +29,13 @@ func main() {
 	switch strings.ToLower(*eventAction) {
 	case "add":
 		log.Println("adding event")
-		sendEvent(temporalClient, watch.Added, makeTestEvent(int32(*eventCount)))
+		//sendEvent(temporalClient, watch.Added, makeTestEvent(int32(*eventCount)))
 	case "update":
 		log.Println("editing event")
-		sendEvent(temporalClient, watch.Modified, makeTestEvent(int32(*eventCount)))
+	//	sendEvent(temporalClient, watch.Modified, makeTestEvent(int32(*eventCount)))
 	case "delete":
 		log.Println("deleting event")
-		sendEvent(temporalClient, watch.Deleted, makeTestEvent(int32(*eventCount)))
+		//sendEvent(temporalClient, watch.Deleted, makeTestEvent(int32(*eventCount)))
 
 	}
 
@@ -57,7 +57,7 @@ func watchEventsscratch(temporalClient client.Client, watcher watch.Interface) {
 	log.Println("Is this event?")
 	for event := range watcher.ResultChan() {
 		clusterEvent := event.Object.(*v1.Event)
-		clusterEventMessage := util.ClusterEventMessage{
+		/*clusterEventMessage := util.ClusterEventMessage{
 			SourceComponent:       "",
 			SourceHost:            "",
 			ObjectKind:            "",
@@ -74,15 +74,15 @@ func watchEventsscratch(temporalClient client.Client, watcher watch.Interface) {
 			EventType:             "",
 			EventFirstTimestamp:   "",
 			EventLastTimestamp:    "",
-		}
+		}*/
 		log.Println("Received event: ", clusterEvent.Name)
-		cluster_event.ExecuteWorkflow(temporalClient, event.Type, clusterEventMessage)
+		//cluster_event.ExecuteWorkflow(temporalClient, event.Type, clusterEventMessage)
 	}
 }
 
 func sendEvent(temporalClient client.Client, event util.ClusterEventMessage) {
 	log.Println("Received event: ", event.EventName)
-	cluster_event.ExecuteWorkflow(temporalClient, "UPDATE", event)
+	//cluster_event.StartWorkflow(temporalClient, "UPDATE", event)
 }
 
 func makeTestEvent(count int32) util.ClusterEventMessage {
