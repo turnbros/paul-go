@@ -28,15 +28,9 @@ func main() {
 	temporalClient := internal.StartTemporal()
 	defer temporalClient.Close()
 
+	log.Println("Connecting to Kubernetes...")
 	kubeClient := util.GetKubeClient()
 	ctx := context.Background()
-
-	//	var api = kubeClient.CoreV1().Endpoints(v1.NamespaceAll)
-	//	endpoints, err := api.List(ctx, metav1.ListOptions{})
-	//	if err != nil {
-	//		panic(err.Error())
-	//	}
-	//	resourceVersion := endpoints.ListMeta.ResourceVersion
 
 	// Get a list of namespaces
 	namespaceList, err := kubeClient.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
@@ -170,7 +164,11 @@ func watchPods(temporalClient client.Client, watcher watch.Interface) {
 func watchEvents(temporalClient client.Client, watcher watch.Interface) {
 	for event := range watcher.ResultChan() {
 		clusterEvent := event.Object.(*v1.Event)
-		cluster_event.ExecuteWorkflow(temporalClient, event.Type, *clusterEvent)
+		if event.Type == watch.Added {
+			cluster_event.StartWorkflow(temporalClient, clusterEvent)
+		} else {
+			cluster_event.UpdateWorkflow(temporalClient, clusterEvent)
+		}
 	}
 }
 

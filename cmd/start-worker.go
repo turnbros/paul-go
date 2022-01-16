@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"paul-go/internal"
+	cluster_event "paul-go/internal/workflows/cluster-event"
 	dialogflow_entity "paul-go/internal/workflows/dialogflow-entity"
 	resourceInfo "paul-go/internal/workflows/resource-info"
 )
@@ -30,6 +31,9 @@ func main() {
 
 	case "dialogflow-entity":
 		dialogflow_entity.StartWorker(temporalClient)
+
+	case "cluster-events":
+		cluster_event.StartWorker(temporalClient)
 
 	default:
 		log.Fatalln("What the hell is ", *workflow, "? I've never heard of that workflow!")

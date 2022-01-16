@@ -5,20 +5,35 @@ import (
 	"fmt"
 	"go.temporal.io/sdk/client"
 	"log"
+	"os"
 	"paul-go/internal/util"
 	resource_info "paul-go/internal/workflows/resource-info"
 )
 
 func StartTemporal() client.Client {
 	temporalConfig := util.GetTemporalConfig()
+
+	temporalHostPort := os.Getenv("TEMPORAL_HOSTPORT")
+	if temporalHostPort == "" {
+		temporalHostPort = fmt.Sprintf("%v:%v", temporalConfig["host"], temporalConfig["port"])
+	}
+
+	temporalNamespace := os.Getenv("TEMPORAL_NAMESPACE")
+	if temporalNamespace == "" {
+		temporalNamespace = fmt.Sprintf("%v", temporalConfig["namespace"])
+	}
+
 	log.Println(fmt.Sprintf("%v:%v", temporalConfig["host"], temporalConfig["port"]))
 	temporalClient, err := client.NewClient(client.Options{
-		HostPort:  fmt.Sprintf("%v:%v", temporalConfig["host"], temporalConfig["port"]),
-		Namespace: fmt.Sprintf("%v", temporalConfig["namespace"]),
+		// HostPort:  fmt.Sprintf("%v:%v", temporalConfig["host"], temporalConfig["port"]),
+		// Namespace: fmt.Sprintf("%v", temporalConfig["namespace"]),
+		HostPort:  temporalHostPort,
+		Namespace: temporalNamespace,
 	})
 	if err != nil {
 		panic(err)
 	}
+
 	return temporalClient
 }
 

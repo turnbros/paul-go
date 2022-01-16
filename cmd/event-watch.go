@@ -13,6 +13,7 @@ import (
 
 const importantEventsChannelID = "931301531179966515"
 const normalEventsChannelID = "931301737028001802"
+const testEventsChannelID = "932115780768759878"
 
 func main() {
 	discordClient := internal.StartDiscord()
@@ -40,20 +41,6 @@ func main() {
 	for event := range eventWatcher.ResultChan() {
 		ev := event.Object.(*v1.Event)
 		postDiscordMessage(discordClient, string(event.Type), *ev)
-		/*switch event.Type {
-		case watch.Added:
-			log.Printf("Added Event %s \n", ev.ObjectMeta.Name)
-		case watch.Error:
-			log.Printf("Error Event %s \n", ev.ObjectMeta.Name)
-		case watch.Bookmark:
-			log.Printf("Bookmark Event %s \n", ev.ObjectMeta.Name)
-		case watch.Modified:
-			log.Printf("Modified Event %s \n", ev.ObjectMeta.Name)
-			log.Printf("Modified Event %s \n", ev.Type)
-		case watch.Deleted:
-			log.Printf("Deleted Event %s \n", ev.ObjectMeta.Name)
-			log.Printf("Modified Event %s \n", ev.Type)
-		}*/
 	}
 }
 
