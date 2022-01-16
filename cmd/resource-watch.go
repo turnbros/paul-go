@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"go.temporal.io/sdk/client"
 	appsV1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -11,6 +10,7 @@ import (
 	"log"
 	"paul-go/internal"
 	"paul-go/internal/util"
+	cluster_event "paul-go/internal/workflows/cluster-event"
 	dialogflow_entity "paul-go/internal/workflows/dialogflow-entity"
 	dialogflow_entity_util "paul-go/internal/workflows/dialogflow-entity/util"
 	"time"
@@ -45,6 +45,11 @@ func main() {
 		namespaceNames = append(namespaceNames, namespace.Name)
 	}
 	setEntity(temporalClient, namespaceEntityTypeId, namespaceNames)
+	namespaceWatcher, err := kubeClient.CoreV1().Namespaces().Watch(ctx, metav1.ListOptions{ResourceVersion: namespaceList.ListMeta.ResourceVersion})
+	if err != nil {
+		log.Fatal(err)
+	}
+	go watchNamespaces(temporalClient, namespaceWatcher)
 
 	// Get a list of services
 	serviceList, err := kubeClient.CoreV1().Services(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
@@ -53,6 +58,11 @@ func main() {
 		serviceNames = append(serviceNames, service.Name)
 	}
 	setEntity(temporalClient, serviceEntityTypeId, serviceNames)
+	serviceWatcher, err := kubeClient.CoreV1().Services(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: serviceList.ListMeta.ResourceVersion})
+	if err != nil {
+		log.Fatal(err)
+	}
+	go watchServices(temporalClient, serviceWatcher)
 
 	// Get a list of Deployment
 	deploymentList, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
@@ -61,6 +71,11 @@ func main() {
 		deploymentNames = append(deploymentNames, deployment.Name)
 	}
 	setEntity(temporalClient, deploymentEntityTypeId, deploymentNames)
+	/*deploymentWatcher, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: deploymentList.ListMeta.ResourceVersion})
+	if err != nil {
+		log.Fatal(err)
+	}*/
+	//go watchDeployments(temporalClient, deploymentWatcher)
 
 	// Get a list of pods
 	podList, err := kubeClient.CoreV1().Pods(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
@@ -69,20 +84,22 @@ func main() {
 		podNames = append(podNames, pod.Name)
 	}
 	setEntity(temporalClient, podEntityTypeId, podNames)
-
-	namespaceWatcher, err := kubeClient.CoreV1().Namespaces().Watch(ctx, metav1.ListOptions{ResourceVersion: namespaceList.ListMeta.ResourceVersion})
-	serviceWatcher, err := kubeClient.CoreV1().Services(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: serviceList.ListMeta.ResourceVersion})
-	//deploymentWatcher, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: deploymentList.ListMeta.ResourceVersion})
 	podWatcher, err := kubeClient.CoreV1().Pods(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: podList.ListMeta.ResourceVersion})
-
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	go watchNamespaces(temporalClient, namespaceWatcher)
-	go watchServices(temporalClient, serviceWatcher)
-	//go watchDeployments(temporalClient, deploymentWatcher)
 	go watchPods(temporalClient, podWatcher)
+
+	// Get a list of events
+	eventList, err := kubeClient.CoreV1().Events(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	eventWatcher, err := kubeClient.CoreV1().Events(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: eventList.ListMeta.ResourceVersion})
+	if err != nil {
+		log.Fatal(err)
+	}
+	go watchEvents(temporalClient, eventWatcher)
 
 	log.Println("Waiting for events.")
 	for {
@@ -96,10 +113,10 @@ func watchNamespaces(temporalClient client.Client, watcher watch.Interface) {
 		ns := event.Object.(*v1.Namespace)
 		switch event.Type {
 		case watch.Added:
-			fmt.Printf("Namespace %s added\n", ns.ObjectMeta.Name)
+			log.Printf("Namespace %s added\n", ns.ObjectMeta.Name)
 			addEntity(temporalClient, entityTypeId, []string{ns.ObjectMeta.Name})
 		case watch.Deleted:
-			fmt.Printf("Namespace %s deleted\n", ns.ObjectMeta.Name)
+			log.Printf("Namespace %s deleted\n", ns.ObjectMeta.Name)
 			addEntity(temporalClient, entityTypeId, []string{ns.ObjectMeta.Name})
 		}
 	}
@@ -111,10 +128,10 @@ func watchServices(temporalClient client.Client, watcher watch.Interface) {
 		svc := event.Object.(*v1.Service)
 		switch event.Type {
 		case watch.Added:
-			fmt.Printf("Service %s/%s added\n", svc.ObjectMeta.Namespace, svc.ObjectMeta.Name)
+			log.Printf("Service %s/%s added\n", svc.ObjectMeta.Namespace, svc.ObjectMeta.Name)
 			addEntity(temporalClient, entityTypeId, []string{svc.ObjectMeta.Name})
 		case watch.Deleted:
-			fmt.Printf("Service %s/%s deleted\n", svc.ObjectMeta.Namespace, svc.ObjectMeta.Name)
+			log.Printf("Service %s/%s deleted\n", svc.ObjectMeta.Namespace, svc.ObjectMeta.Name)
 			removeEntity(temporalClient, entityTypeId, []string{svc.ObjectMeta.Name})
 		}
 	}
@@ -126,10 +143,10 @@ func watchDeployments(temporalClient client.Client, watcher watch.Interface) {
 		deployment := event.Object.(*appsV1.Deployment)
 		switch event.Type {
 		case watch.Added:
-			fmt.Printf("Deployment %s/%s added\n", deployment.ObjectMeta.Namespace, deployment.ObjectMeta.Name)
+			log.Printf("Deployment %s/%s added\n", deployment.ObjectMeta.Namespace, deployment.ObjectMeta.Name)
 			addEntity(temporalClient, entityTypeId, []string{deployment.ObjectMeta.Name})
 		case watch.Deleted:
-			fmt.Printf("Deployment %s/%s deleted\n", deployment.ObjectMeta.Namespace, deployment.ObjectMeta.Name)
+			log.Printf("Deployment %s/%s deleted\n", deployment.ObjectMeta.Namespace, deployment.ObjectMeta.Name)
 			removeEntity(temporalClient, entityTypeId, []string{deployment.ObjectMeta.Name})
 		}
 	}
@@ -141,12 +158,19 @@ func watchPods(temporalClient client.Client, watcher watch.Interface) {
 		pod := event.Object.(*v1.Pod)
 		switch event.Type {
 		case watch.Added:
-			fmt.Printf("Pod %s/%s added\n", pod.ObjectMeta.Namespace, pod.ObjectMeta.Name)
+			log.Printf("Pod %s/%s added\n", pod.ObjectMeta.Namespace, pod.ObjectMeta.Name)
 			addEntity(temporalClient, entityTypeId, []string{pod.ObjectMeta.Name})
 		case watch.Deleted:
-			fmt.Printf("Pod %s/%s deleted\n", pod.ObjectMeta.Namespace, pod.ObjectMeta.Name)
+			log.Printf("Pod %s/%s deleted\n", pod.ObjectMeta.Namespace, pod.ObjectMeta.Name)
 			removeEntity(temporalClient, entityTypeId, []string{pod.ObjectMeta.Name})
 		}
+	}
+}
+
+func watchEvents(temporalClient client.Client, watcher watch.Interface) {
+	for event := range watcher.ResultChan() {
+		clusterEvent := event.Object.(*v1.Event)
+		cluster_event.ExecuteWorkflow(temporalClient, event.Type, *clusterEvent)
 	}
 }
 
