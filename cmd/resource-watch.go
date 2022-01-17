@@ -85,11 +85,12 @@ func main() {
 	go watchPods(temporalClient, podWatcher)
 
 	// Get a list of events
-	eventList, err := kubeClient.CoreV1().Events(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	eventWatcher, err := kubeClient.CoreV1().Events(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: eventList.ListMeta.ResourceVersion})
+	//	eventList, err := kubeClient.CoreV1().Events(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	// eventWatcher, err := kubeClient.CoreV1().Events(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: eventList.ListMeta.ResourceVersion})
+	eventWatcher, err := kubeClient.CoreV1().Events(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}

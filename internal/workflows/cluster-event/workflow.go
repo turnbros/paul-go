@@ -8,9 +8,7 @@ import (
 	"time"
 )
 
-const importantEventsChannelID = "931301531179966515"
-const normalEventsChannelID = "931301737028001802"
-const testEventsChannelID = "932115780768759878"
+const eventChannelID = "932115780768759878"
 
 func ClusterEventMessage(ctx workflow.Context, event util.ClusterEventMessage) error {
 	log.Println("Starting ClusterEventMessage...")
@@ -28,7 +26,7 @@ func ClusterEventMessage(ctx workflow.Context, event util.ClusterEventMessage) e
 	objId2MsgId := make(map[string]string)
 
 	// Create the Discord message
-	execErr := workflow.ExecuteActivity(ctx, activities.AddEventMessage, testEventsChannelID, event).Get(ctx, &messageId)
+	execErr := workflow.ExecuteActivity(ctx, activities.AddEventMessage, eventChannelID, event).Get(ctx, &messageId)
 	if execErr != nil {
 		log.Fatalln("ADD activity execution failed: ", execErr)
 	}
@@ -69,7 +67,7 @@ func ClusterEventMessage(ctx workflow.Context, event util.ClusterEventMessage) e
 
 func eventModified(ctx workflow.Context, discordMsgID string, event util.ClusterEventMessage) error {
 	var activityErr error
-	execErr := workflow.ExecuteActivity(ctx, activities.UpdateEventMessage, testEventsChannelID, discordMsgID, event).Get(ctx, &activityErr)
+	execErr := workflow.ExecuteActivity(ctx, activities.UpdateEventMessage, eventChannelID, discordMsgID, event).Get(ctx, &activityErr)
 	if execErr != nil {
 		log.Fatalln("Modify activity execution failed: ", execErr)
 	}
@@ -78,7 +76,7 @@ func eventModified(ctx workflow.Context, discordMsgID string, event util.Cluster
 
 func eventDeleted(ctx workflow.Context, discordMsgID string) error {
 	var activityErr error
-	execErr := workflow.ExecuteActivity(ctx, activities.RemoveEventMessage, testEventsChannelID, discordMsgID).Get(ctx, &activityErr)
+	execErr := workflow.ExecuteActivity(ctx, activities.RemoveEventMessage, eventChannelID, discordMsgID).Get(ctx, &activityErr)
 	if execErr != nil {
 		log.Fatalln("Delete activity execution failed: ", execErr)
 	}
