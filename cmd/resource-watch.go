@@ -7,6 +7,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/kubernetes"
 	"log"
 	"paul-go/internal"
 	"paul-go/internal/util"
@@ -30,71 +31,21 @@ func main() {
 
 	log.Println("Connecting to Kubernetes...")
 	kubeClient := util.GetKubeClient()
-	ctx := context.Background()
 
-	// Get a list of namespaces
-	namespaceList, err := kubeClient.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
-	var namespaceNames []string
-	for _, namespace := range namespaceList.Items {
-		namespaceNames = append(namespaceNames, namespace.Name)
-	}
-	setEntity(temporalClient, namespaceEntityTypeId, namespaceNames)
-	namespaceWatcher, err := kubeClient.CoreV1().Namespaces().Watch(ctx, metav1.ListOptions{ResourceVersion: namespaceList.ListMeta.ResourceVersion})
-	if err != nil {
-		log.Fatal(err)
-	}
-	go watchNamespaces(temporalClient, namespaceWatcher)
+	log.Println("Starting namespace watcher")
+	startNamespaceWatcher(temporalClient, kubeClient)
 
-	// Get a list of services
-	serviceList, err := kubeClient.CoreV1().Services(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
-	var serviceNames []string
-	for _, service := range serviceList.Items {
-		serviceNames = append(serviceNames, service.Name)
-	}
-	setEntity(temporalClient, serviceEntityTypeId, serviceNames)
-	serviceWatcher, err := kubeClient.CoreV1().Services(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: serviceList.ListMeta.ResourceVersion})
-	if err != nil {
-		log.Fatal(err)
-	}
-	go watchServices(temporalClient, serviceWatcher)
+	log.Println("Starting service watcher")
+	startServiceWatcher(temporalClient, kubeClient)
 
-	// Get a list of Deployment
-	deploymentList, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
-	var deploymentNames []string
-	for _, deployment := range deploymentList.Items {
-		deploymentNames = append(deploymentNames, deployment.Name)
-	}
-	setEntity(temporalClient, deploymentEntityTypeId, deploymentNames)
-	/*deploymentWatcher, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: deploymentList.ListMeta.ResourceVersion})
-	if err != nil {
-		log.Fatal(err)
-	}*/
-	//go watchDeployments(temporalClient, deploymentWatcher)
+	log.Println("Starting deployment watcher")
+	startDeploymentWatcher(temporalClient, kubeClient)
 
-	// Get a list of pods
-	podList, err := kubeClient.CoreV1().Pods(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
-	var podNames []string
-	for _, pod := range podList.Items {
-		podNames = append(podNames, pod.Name)
-	}
-	setEntity(temporalClient, podEntityTypeId, podNames)
-	podWatcher, err := kubeClient.CoreV1().Pods(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: podList.ListMeta.ResourceVersion})
-	if err != nil {
-		log.Fatal(err)
-	}
-	go watchPods(temporalClient, podWatcher)
+	log.Println("Starting pod watcher")
+	startPodWatcher(temporalClient, kubeClient)
 
-	// Get a list of events
-	//	eventList, err := kubeClient.CoreV1().Events(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	// eventWatcher, err := kubeClient.CoreV1().Events(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: eventList.ListMeta.ResourceVersion})
-	eventWatcher, err := kubeClient.CoreV1().Events(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	go watchEvents(temporalClient, eventWatcher)
+	//log.Println("Starting event watcher")
+	// startEventWatcher(temporalClient, kubeClient)
 
 	log.Println("Waiting for events.")
 	for {
@@ -102,6 +53,25 @@ func main() {
 	}
 }
 
+func startNamespaceWatcher(temporalClient client.Client, kubeClient *kubernetes.Clientset) {
+	ctx := context.Background()
+	namespaceList, err := kubeClient.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	if err != nil {
+		log.Println("Failed to start namespace watcher: ", err)
+		return
+	}
+	var namespaceNames []string
+	for _, namespace := range namespaceList.Items {
+		namespaceNames = append(namespaceNames, namespace.Name)
+	}
+	setEntity(temporalClient, namespaceEntityTypeId, namespaceNames)
+	namespaceWatcher, err := kubeClient.CoreV1().Namespaces().Watch(ctx, metav1.ListOptions{ResourceVersion: namespaceList.ListMeta.ResourceVersion})
+	if err != nil {
+		log.Println("Failed to start namespace watcher: Failed to get list from version\n", err)
+		return
+	}
+	go watchNamespaces(temporalClient, namespaceWatcher)
+}
 func watchNamespaces(temporalClient client.Client, watcher watch.Interface) {
 	entityTypeId := namespaceEntityTypeId
 	for event := range watcher.ResultChan() {
@@ -117,6 +87,25 @@ func watchNamespaces(temporalClient client.Client, watcher watch.Interface) {
 	}
 }
 
+func startServiceWatcher(temporalClient client.Client, kubeClient *kubernetes.Clientset) {
+	ctx := context.Background()
+	serviceList, err := kubeClient.CoreV1().Services(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		log.Println("Failed to start service watcher: ", err)
+		return
+	}
+	var serviceNames []string
+	for _, service := range serviceList.Items {
+		serviceNames = append(serviceNames, service.Name)
+	}
+	setEntity(temporalClient, serviceEntityTypeId, serviceNames)
+	serviceWatcher, err := kubeClient.CoreV1().Services(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: serviceList.ListMeta.ResourceVersion})
+	if err != nil {
+		log.Println("Failed to start service watcher: Failed to get list from version\n", err)
+		return
+	}
+	go watchServices(temporalClient, serviceWatcher)
+}
 func watchServices(temporalClient client.Client, watcher watch.Interface) {
 	entityTypeId := serviceEntityTypeId
 	for event := range watcher.ResultChan() {
@@ -132,6 +121,25 @@ func watchServices(temporalClient client.Client, watcher watch.Interface) {
 	}
 }
 
+func startDeploymentWatcher(temporalClient client.Client, kubeClient *kubernetes.Clientset) {
+	ctx := context.Background()
+	deploymentList, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		log.Println("Failed to start deployment watcher: ", err)
+		return
+	}
+	var deploymentNames []string
+	for _, deployment := range deploymentList.Items {
+		deploymentNames = append(deploymentNames, deployment.Name)
+	}
+	setEntity(temporalClient, deploymentEntityTypeId, deploymentNames)
+	deploymentWatcher, err := kubeClient.AppsV1().Deployments(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: deploymentList.ListMeta.ResourceVersion})
+	if err != nil {
+		log.Println("Failed to start deployment watcher: Failed to get list from version\n", err)
+		return
+	}
+	go watchDeployments(temporalClient, deploymentWatcher)
+}
 func watchDeployments(temporalClient client.Client, watcher watch.Interface) {
 	entityTypeId := deploymentEntityTypeId
 	for event := range watcher.ResultChan() {
@@ -147,6 +155,25 @@ func watchDeployments(temporalClient client.Client, watcher watch.Interface) {
 	}
 }
 
+func startPodWatcher(temporalClient client.Client, kubeClient *kubernetes.Clientset) {
+	ctx := context.Background()
+	podList, err := kubeClient.CoreV1().Pods(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		log.Println("Failed to start pod watcher: ", err)
+		return
+	}
+	var podNames []string
+	for _, pod := range podList.Items {
+		podNames = append(podNames, pod.Name)
+	}
+	setEntity(temporalClient, podEntityTypeId, podNames)
+	podWatcher, err := kubeClient.CoreV1().Pods(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: podList.ListMeta.ResourceVersion})
+	if err != nil {
+		log.Println("Failed to start pod watcher: Failed to get list from version\n", err)
+		return
+	}
+	go watchPods(temporalClient, podWatcher)
+}
 func watchPods(temporalClient client.Client, watcher watch.Interface) {
 	entityTypeId := podEntityTypeId
 	for event := range watcher.ResultChan() {
@@ -162,6 +189,21 @@ func watchPods(temporalClient client.Client, watcher watch.Interface) {
 	}
 }
 
+func startEventWatcher(temporalClient client.Client, kubeClient *kubernetes.Clientset) {
+	ctx := context.Background()
+	// Get a list of events
+	eventList, err := kubeClient.CoreV1().Events(v1.NamespaceAll).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		log.Println("Failed to start event watcher: ", err)
+		return
+	}
+	eventWatcher, err := kubeClient.CoreV1().Events(v1.NamespaceAll).Watch(ctx, metav1.ListOptions{ResourceVersion: eventList.ListMeta.ResourceVersion})
+	if err != nil {
+		log.Println("Failed to start event watcher: Failed to get list from version\n", err)
+		return
+	}
+	go watchEvents(temporalClient, eventWatcher)
+}
 func watchEvents(temporalClient client.Client, watcher watch.Interface) {
 	for event := range watcher.ResultChan() {
 		clusterEvent := event.Object.(*v1.Event)
