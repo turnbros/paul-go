@@ -19,14 +19,14 @@ func AddEventMessage(ctx context.Context, channelId string, event util.ClusterEv
 	}
 
 	log.Println("Event received: ", event.EventName)
-	message := fmt.Sprintf("%v - %v %v\n", event.EventType, event.ObjectKind, event.EventReason)
+	message := fmt.Sprintf(":information_source: %v - %v %v\n", event.EventType, event.ObjectKind, event.EventReason)
+	message += fmt.Sprintf("||event uid: `%v`||\n", event.EventUID)
 	message += fmt.Sprintf("```yaml\n")
 	message += fmt.Sprintf("Namespace: %v\n", event.ObjectNamespace)
 	message += fmt.Sprintf("Name: %v\n", event.ObjectName)
 	message += fmt.Sprintf("Message: %v\n", event.EventMessage)
 	message += fmt.Sprintf("Count: %v\n", event.EventCount)
 	message += fmt.Sprintf("```\n")
-	message += fmt.Sprintf("||uid: `%v`||\n", event.ObjectUID)
 
 	log.Println(message)
 	eventMessage, sendError := discordClient.ChannelMessageSend(channelId, message)
