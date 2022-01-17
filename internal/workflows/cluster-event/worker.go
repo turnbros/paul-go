@@ -38,7 +38,7 @@ func StartWorkflow(clientSession client.Client, eventObject *v1.Event) {
 		TaskQueue: TaskQueue,
 	}
 	log.Println("Adding workflow...")
-	_, err := clientSession.ExecuteWorkflow(context.Background(), workflowOptions, ClusterEventMessage, &event)
+	_, err := clientSession.ExecuteWorkflow(context.Background(), workflowOptions, ClusterEventMessage, event)
 	if err != nil {
 		log.Fatalln("Failed to execute workflow: ", err)
 	}
@@ -52,7 +52,7 @@ func UpdateWorkflow(clientSession client.Client, eventObject *v1.Event) {
 		ID:        getWorkflowID(event),
 		TaskQueue: TaskQueue,
 	}
-	_, err := clientSession.SignalWithStartWorkflow(context.Background(), getWorkflowID(event), "EVENT_MODIFIED", event, workflowOptions, ClusterEventMessage, &event)
+	_, err := clientSession.SignalWithStartWorkflow(context.Background(), getWorkflowID(event), "EVENT_MODIFIED", event, workflowOptions, ClusterEventMessage, event)
 	if err != nil {
 		log.Fatalln("Error signaling client", err)
 	}

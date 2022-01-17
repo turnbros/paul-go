@@ -10,7 +10,7 @@ import (
 
 const eventChannelID = "932115780768759878"
 
-func ClusterEventMessage(ctx workflow.Context, event util.ClusterEventMessage) error {
+func ClusterEventMessage(ctx workflow.Context, event *util.ClusterEventMessage) error {
 	log.Println("Starting ClusterEventMessage...")
 
 	ctx = workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
@@ -45,12 +45,12 @@ func ClusterEventMessage(ctx workflow.Context, event util.ClusterEventMessage) e
 			c.Receive(ctx, &signalVal)
 			workflow.GetLogger(ctx).Info("Received signal!", "Signal", signalName, "value", signalVal.EventMessage)
 			log.Println("Assign the object uid")
-			objectUID := &signalVal.ObjectUID
+			objectUID := &signalVal.EventUID
 
 			switch event.EventType {
 			case "MODIFIED":
 				log.Println("Event was modified")
-				activityErr = eventModified(ctx, objId2MsgId[*objectUID], event)
+				activityErr = eventModified(ctx, objId2MsgId[*objectUID], *event)
 			case "DELETED":
 				log.Println("Event was deleted")
 				activityErr = eventDeleted(ctx, objId2MsgId[*objectUID])
