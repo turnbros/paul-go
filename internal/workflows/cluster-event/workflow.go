@@ -35,24 +35,31 @@ func ClusterEventMessage(ctx workflow.Context, event util.ClusterEventMessage) e
 
 	objId2MsgId[event.EventUID] = messageId
 
+	log.Println("Getting ready to wait for signal...")
 	var signalName = "EVENT_MODIFIED"
 	var eventExists = true
 	for eventExists {
 		signalChan := workflow.GetSignalChannel(ctx, signalName)
 		signal := workflow.NewSelector(ctx)
 		signal.AddReceive(signalChan, func(c workflow.ReceiveChannel, more bool) {
+			log.Println("Add the receive function")
 			var signalVal util.ClusterEventMessage
 			c.Receive(ctx, &signalVal)
 			workflow.GetLogger(ctx).Info("Received signal!", "Signal", signalName, "value", signalVal.EventMessage)
+			log.Println("Assign the object uid")
+			objectUID := &signalVal.ObjectUID
 
 			switch event.EventType {
 			case "MODIFIED":
-				activityErr = eventModified(ctx, objId2MsgId[signalVal.ObjectUID], event)
+				log.Println("Event was modified")
+				activityErr = eventModified(ctx, objId2MsgId[*objectUID], event)
 			case "DELETED":
-				activityErr = eventDeleted(ctx, objId2MsgId[signalVal.ObjectUID])
+				log.Println("Event was deleted")
+				activityErr = eventDeleted(ctx, objId2MsgId[*objectUID])
 				eventExists = false
 			}
 		})
+		log.Println("the selector")
 		signal.Select(ctx)
 	}
 

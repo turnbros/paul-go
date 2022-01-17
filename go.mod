@@ -7,11 +7,14 @@ require (
 	github.com/bwmarrin/discordgo v0.23.2
 	github.com/google/uuid v1.3.0
 	github.com/olekukonko/tablewriter v0.0.5
+	github.com/sirupsen/logrus v1.8.1
 	go.temporal.io/sdk v1.12.0
 	google.golang.org/genproto v0.0.0-20211223182754-3ac035c7e7cb
 	k8s.io/api v0.20.4
 	k8s.io/apimachinery v0.20.4
 	k8s.io/client-go v0.20.4
+	logur.dev/adapter/logrus v0.5.0
+	logur.dev/logur v0.17.0
 )
 
 require (
@@ -41,6 +44,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/imdario/mergo v0.3.5 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
