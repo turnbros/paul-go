@@ -59,7 +59,7 @@ func UpdateWorkflow(clientSession client.Client, eventObject *v1.Event) {
 }
 
 func getWorkflowID(event *util.ClusterEventMessage) string {
-	return fmt.Sprintf("cluster-event-%v", event.ObjectUID)
+	return fmt.Sprintf("cluster-event-%v", event.EventUID)
 }
 
 func parseClusterEvent(event *v1.Event) *util.ClusterEventMessage {
