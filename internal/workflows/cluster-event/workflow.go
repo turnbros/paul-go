@@ -12,7 +12,7 @@ const importantEventsChannelID = "931301531179966515"
 const normalEventsChannelID = "931301737028001802"
 const testEventsChannelID = "932115780768759878"
 
-func ClusterEventMessage(ctx workflow.Context, eventOp string, event util.ClusterEventMessage) error {
+func ClusterEventMessage(ctx workflow.Context, event util.ClusterEventMessage) error {
 	log.Println("Starting ClusterEventMessage...")
 
 	ctx = workflow.WithActivityOptions(ctx, workflow.ActivityOptions{
