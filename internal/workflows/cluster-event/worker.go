@@ -48,7 +48,11 @@ func UpdateWorkflow(clientSession client.Client, eventObject *v1.Event) {
 	log.Println("Workflow exists, sending signal")
 
 	event := parseClusterEvent(eventObject)
-	err := clientSession.SignalWorkflow(context.Background(), getWorkflowID(event), "", "EVENT_MODIFIED", event)
+	workflowOptions := client.StartWorkflowOptions{
+		ID:        getWorkflowID(event),
+		TaskQueue: TaskQueue,
+	}
+	_, err := clientSession.SignalWithStartWorkflow(context.Background(), getWorkflowID(event), "EVENT_MODIFIED", event, workflowOptions, ClusterEventMessage, event)
 	if err != nil {
 		log.Fatalln("Error signaling client", err)
 	}

@@ -36,7 +36,8 @@ func ClusterEventMessage(ctx workflow.Context, event util.ClusterEventMessage) e
 	objId2MsgId[event.EventUID] = messageId
 
 	var signalName = "EVENT_MODIFIED"
-	for {
+	var eventExists = true
+	for eventExists {
 		signalChan := workflow.GetSignalChannel(ctx, signalName)
 		signal := workflow.NewSelector(ctx)
 		signal.AddReceive(signalChan, func(c workflow.ReceiveChannel, more bool) {
@@ -49,6 +50,7 @@ func ClusterEventMessage(ctx workflow.Context, event util.ClusterEventMessage) e
 				activityErr = eventModified(ctx, objId2MsgId[signalVal.ObjectUID], event)
 			case "DELETED":
 				activityErr = eventDeleted(ctx, objId2MsgId[signalVal.ObjectUID])
+				eventExists = false
 			}
 		})
 		signal.Select(ctx)
