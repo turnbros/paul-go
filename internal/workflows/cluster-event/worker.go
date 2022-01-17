@@ -58,12 +58,12 @@ func UpdateWorkflow(clientSession client.Client, eventObject *v1.Event) {
 	}
 }
 
-func getWorkflowID(event util.ClusterEventMessage) string {
+func getWorkflowID(event *util.ClusterEventMessage) string {
 	return fmt.Sprintf("cluster-event-%v", event.ObjectUID)
 }
 
-func parseClusterEvent(event *v1.Event) util.ClusterEventMessage {
-	return util.ClusterEventMessage{
+func parseClusterEvent(event *v1.Event) *util.ClusterEventMessage {
+	return &util.ClusterEventMessage{
 		SourceComponent:       event.Source.Component,
 		SourceHost:            event.Source.Host,
 		ObjectKind:            event.InvolvedObject.Kind,
