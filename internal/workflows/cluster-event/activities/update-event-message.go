@@ -28,7 +28,8 @@ func UpdateEventMessage(ctx context.Context, channelId string, eventMessageId st
 	message += fmt.Sprintf("Message: %v\n", event.EventMessage)
 	message += fmt.Sprintf("Count: %v\n", event.EventCount)
 	message += fmt.Sprintf("```\n")
-
+	message += fmt.Sprintf("-\n")
+	
 	_, sendError := discordClient.ChannelMessageEdit(channelId, eventMessageId, message)
 	if sendError != nil {
 		log.Println("Failed to send message: ", sendError)

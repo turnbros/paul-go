@@ -28,6 +28,7 @@ func AddEventMessage(ctx context.Context, channelId string, event util.ClusterEv
 	message += fmt.Sprintf("Message: %v\n", event.EventMessage)
 	message += fmt.Sprintf("Count: %v\n", event.EventCount)
 	message += fmt.Sprintf("```\n")
+	message += fmt.Sprintf("-\n")
 
 	log.Println(message)
 	eventMessage, sendError := discordClient.ChannelMessageSend(channelId, message)
