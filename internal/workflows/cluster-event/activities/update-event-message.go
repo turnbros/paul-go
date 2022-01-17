@@ -15,7 +15,8 @@ func UpdateEventMessage(ctx context.Context, channelId string, eventMessageId st
 	discordClient.Identify.Intents = discordgo.IntentsGuildMessages
 	err := discordClient.Open()
 	if err != nil {
-		log.Fatalln("Error opening Discord client connection,", err)
+		log.Println("Error opening Discord client connection,", err)
+		return err
 	}
 
 	log.Println("Event received: ", event.EventName)
@@ -30,7 +31,8 @@ func UpdateEventMessage(ctx context.Context, channelId string, eventMessageId st
 
 	_, sendError := discordClient.ChannelMessageEdit(channelId, eventMessageId, message)
 	if sendError != nil {
-		log.Fatalln("Failed to send message: ", sendError)
+		log.Println("Failed to send message: ", sendError)
+		return sendError
 	}
-	return sendError
+	return nil
 }

@@ -15,7 +15,8 @@ func AddEventMessage(ctx context.Context, channelId string, event util.ClusterEv
 	discordClient.Identify.Intents = discordgo.IntentsGuildMessages
 	err := discordClient.Open()
 	if err != nil {
-		log.Fatalln("Error opening Discord client connection,", err)
+		log.Println("Error opening Discord client connection,", err)
+		return "", err
 	}
 
 	log.Println("Event received: ", event.EventName)
@@ -31,7 +32,8 @@ func AddEventMessage(ctx context.Context, channelId string, event util.ClusterEv
 	log.Println(message)
 	eventMessage, sendError := discordClient.ChannelMessageSend(channelId, message)
 	if sendError != nil {
-		log.Fatalln("Failed to send message: ", sendError)
+		log.Println("Failed to send message: ", sendError)
+		return "", sendError
 	}
 	return eventMessage.ID, nil
 }

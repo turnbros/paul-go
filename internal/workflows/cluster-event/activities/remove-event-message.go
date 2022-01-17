@@ -13,7 +13,8 @@ func RemoveEventMessage(ctx context.Context, channelId string, eventMessageId st
 	discordClient.Identify.Intents = discordgo.IntentsGuildMessages
 	err := discordClient.Open()
 	if err != nil {
-		log.Fatalln("Error opening Discord client connection,", err)
+		log.Println("Error opening Discord client connection,", err)
+		return err
 	}
 
 	log.Println("deleting: message")
