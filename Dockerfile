@@ -13,7 +13,7 @@ COPY internal internal
 COPY scripts scripts
 RUN ./scripts/build.sh
 
-FROM alpine:3.15
+FROM harbor.turnbull.corp/library/alpine:3.15
 RUN adduser -h "/paul" -u 3240 -g "Paul" -D paul
 COPY --from=paul-builder --chown=paul /paul-go/dist/* /usr/local/bin/
 USER paul
