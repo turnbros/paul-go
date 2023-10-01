@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine as paul-builder
+FROM harbor.turnbull.corp/library/golang:1.16-alpine as paul-builder
 
 WORKDIR /paul-go
 
